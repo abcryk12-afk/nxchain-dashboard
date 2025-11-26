@@ -70,8 +70,13 @@ class DepositListener {
   // Process individual transaction
   async processTransaction(tx) {
     try {
-      // Skip if already processed
-      if (this.processedTxs.has(tx.hash)) {
+      // Skip if transaction is undefined or already processed
+      if (!tx || !tx.hash || this.processedTxs.has(tx.hash)) {
+        return;
+      }
+
+      // Check if transaction has a 'to' address
+      if (!tx.to) {
         return;
       }
 
