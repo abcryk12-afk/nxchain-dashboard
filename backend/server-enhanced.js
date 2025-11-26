@@ -33,12 +33,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nxchain', {
-  ssl: true,
-  sslValidate: false,
-  tlsAllowInvalidCertificates: true,
-  tlsAllowInvalidHostnames: true
-});
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nxchain');
 
 // Initialize blockchain components
 const walletManager = new WalletManager();
