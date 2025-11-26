@@ -7,7 +7,8 @@ import {
   ShareIcon,
   ClipboardDocumentIcon,
   BanknotesIcon,
-  ClockIcon
+  ClockIcon,
+  ArrowUpIcon
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DashboardData, Referral } from '../types';
@@ -294,7 +295,7 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data }) => {
                     'bg-purple-500/20'
                   }`}>
                     {transaction.type === 'deposit' && <ArrowTrendingUpIcon className="w-5 h-5 text-green-400" />}
-                    {transaction.type === 'withdrawal' && <ArrowUpTrayIcon className="w-5 h-5 text-red-400" />}
+                    {transaction.type === 'withdrawal' && <ArrowUpIcon className="w-5 h-5 text-red-400" />}
                     {transaction.type === 'staking' && <BanknotesIcon className="w-5 h-5 text-blue-400" />}
                     {transaction.type === 'referral' && <UserGroupIcon className="w-5 h-5 text-purple-400" />}
                   </div>
