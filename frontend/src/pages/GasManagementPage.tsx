@@ -17,8 +17,7 @@ import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
   PlusIcon,
-  PowerIcon,
-  ArrowPathIcon
+  PowerIcon
 } from '@heroicons/react/24/outline';
 
 interface GasWallet {
