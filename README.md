@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NXChain Dashboard & Referral System
 
 A comprehensive web application for NXChain featuring a complete dashboard, referral system, staking packages, and financial management tools.
@@ -288,3 +289,7 @@ For support and questions:
 ---
 
 **Built with ❤️ for the NXChain community**
+=======
+# nxchain-dashboard
+NXChain Dashboard with BNB Smart Chain Integration
+>>>>>>> 59f5ee8c26193d9a735b0478c3fcb6d8430f7ab9
