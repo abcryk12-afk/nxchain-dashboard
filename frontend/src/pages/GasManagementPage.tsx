@@ -18,7 +18,7 @@ import {
   ArrowDownTrayIcon,
   PlusIcon,
   PowerIcon,
-  RefreshIcon
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 interface GasWallet {
@@ -327,7 +327,7 @@ const GasManagementPage: React.FC = () => {
                     />
                   </div>
                   <button className="p-2 bg-nx-blue/20 hover:bg-nx-blue/30 rounded-lg transition-colors">
-                    <RefreshIcon className="w-5 h-5 text-nx-blue" />
+                    <ArrowPathIcon className="w-5 h-5 text-nx-blue" />
                   </button>
                 </div>
               </div>
