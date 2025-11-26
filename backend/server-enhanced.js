@@ -43,7 +43,7 @@ const walletManager = new WalletManager();
 const depositListener = new DepositListener();
 
 // Email Transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
