@@ -298,7 +298,7 @@ app.post('/api/login', async (req, res) => {
       let adminUser = await User.findOne({ email: 'admin@nxchain.com' });
       if (!adminUser) {
         const adminUserId = User.generateUserId();
-        const adminWallet = walletManager.generateUserWallet(adminUserId);
+        const adminWallet = generateUserWallet(adminUserId);
         const adminReferralCode = User.generateReferralCode();
         
         adminUser = new User({
