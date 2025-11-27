@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Shield, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -9,8 +9,19 @@ import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
-  console.log('🔥 AdminLoginPage component loaded!');
-  alert('🔥 AdminLoginPage loaded! VERSION 6.0 - RENDER COUNT TEST! If you see this more than once, something is wrong!');
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    if (!mounted) {
+      console.log('🔥 AdminLoginPage component loaded!');
+      alert('🔥 AdminLoginPage loaded! VERSION 7.0 - MOUNT GUARD! If you see this more than once, something is seriously wrong!');
+      setMounted(true);
+    }
+    
+    return () => {
+      console.log('🔥 AdminLoginPage unmounted');
+    };
+  }, [mounted]);
   
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
