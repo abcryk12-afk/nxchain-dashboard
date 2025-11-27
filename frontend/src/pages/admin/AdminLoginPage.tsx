@@ -39,47 +39,20 @@ const AdminLoginPage: React.FC = () => {
         password: credentials.password
       });
 
-      console.log('🔥 Admin Login - Raw Response:', response.data);
+      console.log('🔥 Admin Login - Response:', response.data);
+
+    // Handle the actual response format
+    if (response.data.message === 'Login successful' && response.data.token && response.data.user) {
+      console.log('🔥 Login successful, processing...');
       
-      // First check if login was successful
-      if (response.data.success) {
-        // If we have user and token, use them
-        if (response.data.user && response.data.token) {
-          console.log('🔥 Admin Login - Full user data received');
-          login(response.data.user, response.data.token);
-          toast.success('Login successful!');
-          navigate('/admin');
-        } 
-        // If we just have a success message
-        else if (response.data.message) {
-          console.log('🔥 Admin Login - Login successful, but missing user data');
-          // Create a complete user object with admin privileges
-          const adminUser = {
-            userId: 'admin-temp',
-            email: credentials.email,
-            firstName: 'Admin',
-            lastName: 'User',
-            referralCode: 'ADMIN',
-            address: 'Admin Address',
-            balance: 0,
-            totalEarnings: 0,
-            referralEarnings: 0,
-            withdrawableBalance: 0,
-            pendingEarnings: 0,
-            isVerified: true,
-            isAdmin: true,
-            createdAt: new Date().toISOString()
-          };
-          login(adminUser, 'admin-token');
-          toast.success('Admin login successful!');
-          navigate('/admin');
-        }
-      } 
-      // Handle error case
-      else {
-        console.log('🔥 Admin Login - Login failed:', response.data.message || 'Unknown error');
-        toast.error(response.data.message || 'Login failed. Please try again.');
-      }
+      // Use the actual user data from the response
+      login(response.data.user, response.data.token);
+      toast.success('Login successful!');
+      navigate('/admin');
+    } else {
+      console.log('🔥 Login failed:', response.data.message || 'Unknown error');
+      toast.error(response.data.message || 'Login failed. Please try again.');
+    }
     } catch (error: any) {
       console.error('Admin login error:', error);
       if (error.response?.data?.message) {
