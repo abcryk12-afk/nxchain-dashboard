@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema({
   
   // Referral info
   referralCode: { type: String, required: true, unique: true },
-  referredBy: { type: String, default: null },
+  sponsorId: { type: String, default: null }, // Sponsor's userId
+  referredBy: { type: String, default: null }, // Legacy field - keeping for compatibility
   
   // Earnings
   totalEarnings: { type: Number, default: 0 },
@@ -67,6 +68,7 @@ const userSchema = new mongoose.Schema({
 
 // Indexes (only for non-unique fields)
 userSchema.index({ referredBy: 1 });
+userSchema.index({ sponsorId: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Virtual fields

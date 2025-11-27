@@ -128,10 +128,10 @@ setInterval(async () => {
 // Routes
 app.use('/api/admin', adminRoutes);
 
-// Registration with wallet generation (simplified for testing) - UPDATED VERSION
+// Registration with wallet generation - MANDATORY REFERRAL VALIDATION
 app.post('/api/register', async (req, res) => {
   try {
-    console.log('🔥 REGISTER ENDPOINT CALLED - UPDATED VERSION');
+    console.log('🔥 REGISTER ENDPOINT CALLED - MANDATORY REFERRAL VALIDATION');
     const { email, password, firstName, lastName, referralCode } = req.body;
 
     // Check if user already exists
@@ -140,50 +140,37 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // MANDATORY REFERRAL CODE VALIDATION
+    if (!referralCode || referralCode.trim() === '') {
+      return res.status(400).json({ message: 'Referral code is required.' });
+    }
+
+    console.log('🔥 VALIDATING REFERRAL CODE:', referralCode.trim());
+    
+    // Find sponsor by referral code
+    const sponsor = await User.findOne({ referralCode: referralCode.trim() });
+    if (!sponsor) {
+      return res.status(400).json({ message: 'Invalid referral code.' });
+    }
+
+    console.log('🔥 SPONSOR FOUND:', sponsor.email, 'userId:', sponsor.userId);
+
     // Generate user ID
     const newUserId = User.generateUserId();
 
     // Generate user wallet
     const userWallet = generateUserWallet(newUserId);
 
-    // Handle referral - PROPERLY IMPLEMENTED WITH ERROR HANDLING
-    let referredBy = null;
-    let referralRecord = null;
-    
-    console.log('🔥 REFERRAL CODE CHECK:', referralCode);
-    
-    if (referralCode) {
-      console.log('🔥 LOOKING UP REFERRER...');
-      try {
-        const referrer = await User.findOne({ referralCode });
-        if (referrer) {
-          console.log('🔥 REFERRER FOUND:', referrer.email);
-          referredBy = referrer.referralCode;
-          // Store referral data to create after user save
-          referralRecord = {
-            referrerId: referrer._id,
-            referralCode: referralCode
-          };
-          console.log('🔥 REFERRAL RECORD STORED:', referralRecord);
-        } else {
-          console.log('🔥 REFERRER NOT FOUND FOR CODE:', referralCode);
-          // Continue with registration even if referrer not found
-        }
-      } catch (referralLookupError) {
-        console.error('🔥 REFERRAL LOOKUP ERROR:', referralLookupError);
-        // Continue with registration even if lookup fails
-      }
-    }
-
     // Generate referral code for new user
     const userReferralCode = User.generateReferralCode();
+    console.log('🔥 NEW USER REFERRAL CODE GENERATED:', userReferralCode);
 
     // Hash password and generate salt manually
     const crypto = require('crypto');
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
 
-    // Create user with manually hashed password
+    // Create user with sponsor linking
     const user = new User({
       userId: newUserId,
       email,
@@ -196,35 +183,30 @@ app.post('/api/register', async (req, res) => {
       privateKeyEncrypted: userWallet.privateKeyEncrypted,
       derivationPath: userWallet.derivationPath,
       referralCode: userReferralCode,
-      referredBy
+      sponsorId: sponsor.userId, // Link to sponsor's userId
+      referredBy: sponsor.referralCode // Keep for compatibility
     });
 
+    console.log('🔥 SAVING USER WITH SPONSOR LINKING...');
     await user.save();
+    console.log('🔥 USER SAVED SUCCESSFULLY!');
 
-    // Create referral record after user is saved (now we have the _id) - PROPERLY IMPLEMENTED
-    if (referralRecord) {
+    // Create referral record immediately after user save
+    try {
       console.log('🔥 CREATING REFERRAL RECORD...');
-      console.log('🔥 USER _ID:', user._id);
-      console.log('🔥 REFERRAL RECORD:', referralRecord);
+      const referral = new Referral({
+        referrer: sponsor._id, // Use sponsor's MongoDB _id
+        referred: user._id,     // Use new user's MongoDB _id
+        referralCode: referralCode.trim(),
+        status: 'active',
+        level: 1
+      });
       
-      try {
-        const referral = new Referral({
-          referrer: referralRecord.referrerId,
-          referred: user._id,
-          referralCode: referralRecord.referralCode,
-          status: 'active',
-          level: 1
-        });
-        
-        console.log('🔥 REFERRAL OBJECT CREATED:', referral);
-        await referral.save();
-        console.log('🔥 REFERRAL SAVED SUCCESSFULLY!');
-      } catch (referralError) {
-        console.error('🔥 REFERRAL SAVE ERROR:', referralError);
-        console.error('🔥 ERROR STACK:', referralError.stack);
-        // Don't throw error - continue with registration even if referral fails
-        console.log('🔥 CONTINUING WITH REGISTRATION DESPITE REFERRAL ERROR');
-      }
+      await referral.save();
+      console.log('🔥 REFERRAL RECORD CREATED SUCCESSFULLY!');
+    } catch (referralError) {
+      console.error('🔥 REFERRAL CREATION ERROR:', referralError);
+      // Continue even if referral creation fails - user is already created
     }
 
     // Generate JWT token
@@ -233,6 +215,11 @@ app.post('/api/register', async (req, res) => {
       process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
       { expiresIn: '24h' }
     );
+
+    console.log('🔥 REGISTRATION COMPLETED SUCCESSFULLY!');
+    console.log('🔥 USER:', user.email);
+    console.log('🔥 SPONSOR:', sponsor.email);
+    console.log('🔥 USER REFERRAL CODE:', userReferralCode);
 
     res.status(201).json({ 
       message: 'Registration successful',
@@ -244,6 +231,7 @@ app.post('/api/register', async (req, res) => {
         lastName: user.lastName,
         address: user.address,
         referralCode: user.referralCode,
+        sponsorId: user.sponsorId,
         balance: user.balance,
         totalEarnings: user.totalEarnings,
         referralEarnings: user.referralEarnings,
@@ -259,9 +247,10 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// OTP Verification with user creation
+// OTP Verification with user creation - MANDATORY REFERRAL VALIDATION
 app.post('/api/verify-otp', async (req, res) => {
   try {
+    console.log('🔥 VERIFICATION ENDPOINT CALLED - MANDATORY REFERRAL VALIDATION');
     const { userId, otp } = req.body;
 
     // Find temporary registration
@@ -273,38 +262,33 @@ app.post('/api/verify-otp', async (req, res) => {
     // Verify OTP
     await tempReg.verifyCode(otp);
 
+    // MANDATORY REFERRAL CODE VALIDATION
+    const referralCode = tempReg.registrationData.referralCode;
+    if (!referralCode || referralCode.trim() === '') {
+      return res.status(400).json({ message: 'Referral code is required.' });
+    }
+
+    console.log('🔥 VERIFICATION - VALIDATING REFERRAL CODE:', referralCode.trim());
+    
+    // Find sponsor by referral code
+    const sponsor = await User.findOne({ referralCode: referralCode.trim() });
+    if (!sponsor) {
+      return res.status(400).json({ message: 'Invalid referral code.' });
+    }
+
+    console.log('🔥 VERIFICATION - SPONSOR FOUND:', sponsor.email, 'userId:', sponsor.userId);
+
     // Generate user ID
     const newUserId = User.generateUserId();
 
     // Generate user wallet
     const userWallet = generateUserWallet(newUserId);
 
-    // Handle referral - PROPERLY IMPLEMENTED WITH ERROR HANDLING
-    let referredBy = null;
-    let referralRecord = null;
-    
-    if (tempReg.registrationData.referralCode) {
-      console.log('🔥 VERIFICATION - REFERRAL CODE CHECK:', tempReg.registrationData.referralCode);
-      try {
-        const referrer = await User.findOne({ referralCode: tempReg.registrationData.referralCode });
-        if (referrer) {
-          console.log('🔥 VERIFICATION - REFERRER FOUND:', referrer.email);
-          referredBy = referrer.referralCode;
-          // Store referral data to create after user save
-          referralRecord = {
-            referrerId: referrer._id,
-            referralCode: referrer.referralCode
-          };
-          console.log('🔥 VERIFICATION - REFERRAL RECORD STORED:', referralRecord);
-        } else {
-          console.log('🔥 VERIFICATION - REFERRER NOT FOUND FOR CODE:', tempReg.registrationData.referralCode);
-        }
-      } catch (referralLookupError) {
-        console.error('🔥 VERIFICATION - REFERRAL LOOKUP ERROR:', referralLookupError);
-      }
-    }
+    // Generate referral code for new user
+    const userReferralCode = User.generateReferralCode();
+    console.log('🔥 VERIFICATION - NEW USER REFERRAL CODE GENERATED:', userReferralCode);
 
-    // Create user
+    // Create user with sponsor linking
     const user = new User({
       userId: newUserId,
       email: tempReg.email,
@@ -317,38 +301,33 @@ app.post('/api/verify-otp', async (req, res) => {
       publicKey: userWallet.publicKey,
       privateKeyEncrypted: userWallet.privateKeyEncrypted,
       derivationPath: userWallet.derivationPath,
-      referralCode: User.generateReferralCode(),
-      referredBy,
+      referralCode: userReferralCode,
+      sponsorId: sponsor.userId, // Link to sponsor's userId
+      referredBy: sponsor.referralCode, // Keep for compatibility
       isVerified: true
     });
 
+    console.log('🔥 VERIFICATION - SAVING USER WITH SPONSOR LINKING...');
     await user.save();
+    console.log('🔥 VERIFICATION - USER SAVED SUCCESSFULLY!');
 
-    // Create referral record after user is saved (now we have the _id) - PROPERLY IMPLEMENTED
-    if (referralRecord) {
+    // Create referral record immediately after user save
+    try {
       console.log('🔥 VERIFICATION - CREATING REFERRAL RECORD...');
-      console.log('🔥 VERIFICATION - USER _ID:', user._id);
-      console.log('🔥 VERIFICATION - REFERRAL RECORD:', referralRecord);
+      const referral = new Referral({
+        referrer: sponsor._id, // Use sponsor's MongoDB _id
+        referred: user._id,     // Use new user's MongoDB _id
+        referralCode: referralCode.trim(),
+        commission: 0,
+        status: 'active', // Active since user is verified
+        createdAt: new Date()
+      });
       
-      try {
-        const referral = new Referral({
-          referrer: referralRecord.referrerId,
-          referred: user._id,
-          referralCode: referralRecord.referralCode,
-          commission: 0,
-          status: 'pending',
-          createdAt: new Date()
-        });
-        
-        console.log('🔥 VERIFICATION - REFERRAL OBJECT CREATED:', referral);
-        await referral.save();
-        console.log('🔥 VERIFICATION - REFERRAL SAVED SUCCESSFULLY!');
-      } catch (referralError) {
-        console.error('🔥 VERIFICATION - REFERRAL SAVE ERROR:', referralError);
-        console.error('🔥 VERIFICATION - ERROR STACK:', referralError.stack);
-        // Don't throw error - continue with verification even if referral fails
-        console.log('🔥 CONTINUING WITH VERIFICATION DESPITE REFERRAL ERROR');
-      }
+      await referral.save();
+      console.log('🔥 VERIFICATION - REFERRAL RECORD CREATED SUCCESSFULLY!');
+    } catch (referralError) {
+      console.error('🔥 VERIFICATION - REFERRAL CREATION ERROR:', referralError);
+      // Continue even if referral creation fails - user is already created
     }
 
     // Generate JWT token
@@ -363,19 +342,33 @@ app.post('/api/verify-otp', async (req, res) => {
     tempReg.verifiedAt = new Date();
     await tempReg.save();
 
+    console.log('🔥 VERIFICATION COMPLETED SUCCESSFULLY!');
+    console.log('🔥 USER:', user.email);
+    console.log('🔥 SPONSOR:', sponsor.email);
+    console.log('🔥 USER REFERRAL CODE:', userReferralCode);
+
     res.json({
+      message: 'OTP verified and registration successful',
       token,
       user: {
         userId: user.userId,
         email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
         referralCode: user.referralCode,
+        sponsorId: user.sponsorId,
         balance: user.balance,
+        totalEarnings: user.totalEarnings,
+        referralEarnings: user.referralEarnings,
+        withdrawableBalance: user.withdrawableBalance,
+        pendingEarnings: user.pendingEarnings,
         isVerified: user.isVerified
       }
     });
   } catch (error) {
-    console.error('OTP verification error:', error);
-    res.status(400).json({ message: error.message || 'Verification failed' });
+    console.error('🔥 VERIFICATION ERROR:', error);
+    console.error('🔥 ERROR STACK:', error.stack);
+    res.status(500).json({ message: 'OTP verification failed: ' + error.message });
   }
 });
 
@@ -680,25 +673,26 @@ app.post('/api/withdraw', authenticateToken, async (req, res) => {
   }
 });
 
-// Referral stats endpoint - PROPERLY IMPLEMENTED
+// Referral stats endpoint - SPONSOR-BASED SYSTEM
 app.get('/api/referral-stats', authenticateToken, async (req, res) => {
   try {
-    console.log(' REFERRAL STATS REQUEST FOR USER:', req.user.userId);
+    console.log('🔥 REFERRAL STATS REQUEST FOR USER:', req.user.userId);
     
     const user = await User.findOne({ userId: req.user.userId });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log(' USER FOUND:', user.email);
-    console.log(' USER REFERRAL CODE:', user.referralCode);
+    console.log('🔥 USER FOUND:', user.email);
+    console.log('🔥 USER REFERRAL CODE:', user.referralCode);
+    console.log('🔥 USER SPONSOR ID:', user.sponsorId);
 
-    // Find referrals where this user is the referrer
+    // Find referrals where this user is the referrer (using MongoDB _id)
     const referrals = await Referral.find({ referrer: user._id })
       .populate('referred', 'email createdAt isVerified')
       .sort({ createdAt: -1 });
 
-    console.log(' REFERRALS FOUND:', referrals.length);
+    console.log('🔥 REFERRALS FOUND:', referrals.length);
 
     const referralCode = user.referralCode;
     const referralLink = `https://nxchain-frontend.onrender.com/register?ref=${referralCode}`;
@@ -707,7 +701,7 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
     const verifiedReferrals = referrals.filter(r => r.referred && r.referred.isVerified).length;
     const totalCommission = referrals.reduce((sum, r) => sum + (r.commission || 0), 0);
 
-    console.log(' REFERRAL STATS:', {
+    console.log('🔥 REFERRAL STATS:', {
       totalReferrals,
       verifiedReferrals,
       totalCommission
@@ -716,6 +710,7 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
     res.json({
       referralCode,
       referralLink,
+      sponsorId: user.sponsorId, // Include sponsor info
       totalReferrals,
       verifiedReferrals,
       totalCommission,
@@ -727,8 +722,8 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
       }))
     });
   } catch (error) {
-    console.error(' REFERRAL STATS ERROR:', error);
-    console.error(' ERROR STACK:', error.stack);
+    console.error('🔥 REFERRAL STATS ERROR:', error);
+    console.error('🔥 ERROR STACK:', error.stack);
     res.status(500).json({ message: 'Failed to fetch referral stats' });
   }
 });
