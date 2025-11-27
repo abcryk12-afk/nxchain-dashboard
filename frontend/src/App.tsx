@@ -21,13 +21,19 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Route wrapper for authenticated routes
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   
   console.log('🔥 ProtectedRoute - User:', !!user);
+  console.log('🔥 ProtectedRoute - Loading:', loading);
   console.log('🔥 ProtectedRoute - Path:', location.pathname);
   console.log('🔥 ProtectedRoute - User Data:', user);
   console.log('🔥 ProtectedRoute - User isAdmin:', user?.isAdmin);
+  
+  if (loading) {
+    console.log('🔥 ProtectedRoute - Still loading, returning null');
+    return null;
+  }
   
   if (!user) {
     console.log('🔥 ProtectedRoute - Redirecting to login');
@@ -299,10 +305,10 @@ function AppContent() {
           />
           */}
 
-          {/* Catch-all redirect to login */}
+          {/* Catch-all redirect to login (except admin-login) */}
           <Route 
             path="*" 
-            element={<Navigate to="/login" replace />} 
+            element={<Navigate to="/login" replace state={{ from: location }} />} 
           />
         </Routes>
       </div>
