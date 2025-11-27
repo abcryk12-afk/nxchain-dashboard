@@ -266,6 +266,52 @@ app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Check for admin credentials
+    if (email === 'admin@nxchain.com' && password === 'admin123456') {
+      // Create admin user if not exists
+      let adminUser = await User.findOne({ email: 'admin@nxchain.com' });
+      if (!adminUser) {
+        const adminUserId = User.generateUserId();
+        const adminWallet = walletManager.generateUserWallet(adminUserId);
+        const adminReferralCode = User.generateReferralCode();
+        
+        adminUser = new User({
+          userId: adminUserId,
+          email: 'admin@nxchain.com',
+          password: 'admin123456',
+          firstName: 'Admin',
+          lastName: 'User',
+          address: adminWallet.address,
+          publicKey: adminWallet.publicKey,
+          privateKeyEncrypted: adminWallet.privateKeyEncrypted,
+          derivationPath: adminWallet.derivationPath,
+          referralCode: adminReferralCode,
+          referredBy: null,
+          isAdmin: true,
+          isActive: true
+        });
+        await adminUser.save();
+      }
+
+      const token = jwt.sign(
+        { userId: adminUser.userId, email: adminUser.email, isAdmin: true },
+        process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
+        { expiresIn: '24h' }
+      );
+
+      return res.status(200).json({
+        message: 'Login successful',
+        token,
+        user: {
+          userId: adminUser.userId,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          isAdmin: true
+        }
+      });
+    }
+
     const user = await User.findOne({ email, isActive: true });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });

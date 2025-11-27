@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema({
   depositCount: { type: Number, default: 0 },
   withdrawalCount: { type: Number, default: 0 },
   
+  // Admin settings
+  isAdmin: { type: Boolean, default: false },
+  isActive: { type: Boolean, default: true },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
