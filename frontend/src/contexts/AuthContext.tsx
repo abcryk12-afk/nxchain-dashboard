@@ -30,6 +30,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('🔥 AuthContext - Checking for existing token/user');
     console.log('🔥 Current URL:', window.location.pathname);
     
+    // Don't auto-login on admin-login page
+    if (window.location.pathname === '/admin-login') {
+      console.log('🔥 On admin-login page, skipping auto-login');
+      setLoading(false);
+      return;
+    }
+    
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
