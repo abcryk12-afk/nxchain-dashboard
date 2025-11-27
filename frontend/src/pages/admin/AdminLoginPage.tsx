@@ -39,8 +39,7 @@ const AdminLoginPage: React.FC = () => {
         password: credentials.password
       });
 
-      if (response.data.success) {
-        console.log('🔥 Admin Login - Response:', response.data);
+      console.log('🔥 Admin Login - Response:', response.data);
       
       // Check response format
       if (response.data.success && response.data.user && response.data.token) {
