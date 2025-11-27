@@ -202,17 +202,23 @@ app.post('/api/register', async (req, res) => {
       console.log('🔥 USER _ID:', user._id);
       console.log('🔥 REFERRAL RECORD:', referralRecord);
       
-      const referral = new Referral({
-        referrer: referralRecord.referrerId,
-        referred: user._id,
-        referralCode: referralRecord.referralCode,
-        status: 'active',
-        level: 1
-      });
-      
-      console.log('🔥 REFERRAL OBJECT CREATED:', referral);
-      await referral.save();
-      console.log('🔥 REFERRAL SAVED SUCCESSFULLY!');
+      try {
+        const referral = new Referral({
+          referrer: referralRecord.referrerId,
+          referred: user._id,
+          referralCode: referralRecord.referralCode,
+          status: 'active',
+          level: 1
+        });
+        
+        console.log('🔥 REFERRAL OBJECT CREATED:', referral);
+        await referral.save();
+        console.log('🔥 REFERRAL SAVED SUCCESSFULLY!');
+      } catch (referralError) {
+        console.error('🔥 REFERRAL SAVE ERROR:', referralError);
+        console.error('🔥 ERROR STACK:', referralError.stack);
+        throw referralError;
+      }
     }
 
     // Generate JWT token
@@ -298,15 +304,28 @@ app.post('/api/verify-otp', async (req, res) => {
 
     // Create referral record after user is saved (now we have the _id)
     if (referralRecord) {
-      const referral = new Referral({
-        referrer: referralRecord.referrerId,
-        referred: user._id,
-        referralCode: referralRecord.referralCode,
-        commission: 0,
-        status: 'pending',
-        createdAt: new Date()
-      });
-      await referral.save();
+      console.log('🔥 VERIFICATION - CREATING REFERRAL RECORD...');
+      console.log('🔥 VERIFICATION - USER _ID:', user._id);
+      console.log('🔥 VERIFICATION - REFERRAL RECORD:', referralRecord);
+      
+      try {
+        const referral = new Referral({
+          referrer: referralRecord.referrerId,
+          referred: user._id,
+          referralCode: referralRecord.referralCode,
+          commission: 0,
+          status: 'pending',
+          createdAt: new Date()
+        });
+        
+        console.log('🔥 VERIFICATION - REFERRAL OBJECT CREATED:', referral);
+        await referral.save();
+        console.log('🔥 VERIFICATION - REFERRAL SAVED SUCCESSFULLY!');
+      } catch (referralError) {
+        console.error('🔥 VERIFICATION - REFERRAL SAVE ERROR:', referralError);
+        console.error('🔥 VERIFICATION - ERROR STACK:', referralError.stack);
+        throw referralError;
+      }
     }
 
     // Generate JWT token
