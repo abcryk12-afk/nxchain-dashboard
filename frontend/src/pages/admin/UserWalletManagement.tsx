@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Copy, Wallet, User, Calendar, Phone, Globe, QrCode, Eye, EyeOff, Loader2, Check } from 'lucide-react';
+import { Search, Copy, Wallet, User, Calendar, Phone, Globe, QrCode, Eye, EyeOff, Loader2, Check, Key, Shield, Database } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -175,7 +175,24 @@ export default function UserWalletManagement() {
     }
   };
 
-  // Toggle private key visibility
+  // Fetch master wallet info
+  const fetchMasterWalletInfo = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/wallet/master-info`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.data.success) {
+        console.log('🔥 MASTER WALLET INFO:', response.data.masterInfo);
+        toast.success('Master wallet info loaded!');
+      }
+    } catch (error) {
+      console.error('🔥 MASTER WALLET INFO ERROR:', error);
+      toast.error('Failed to fetch master wallet info');
+    }
+  };
   const togglePrivateKey = (address: string) => {
     setShowPrivateKeys(prev => ({
       ...prev,
@@ -247,6 +264,64 @@ export default function UserWalletManagement() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Master Wallet Info Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Master Wallet Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg bg-gray-50">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Key className="h-5 w-5 text-blue-600" />
+                  <span className="font-medium">HD Wallet System</span>
+                </div>
+                <Badge variant="outline">Production Ready</Badge>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Master Mnemonic</label>
+                  <div className="text-sm mt-1 font-mono bg-gray-100 p-2 rounded">
+                    danger attack gesture cliff clap stage tag spare loop cousin either put
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Supported Networks</label>
+                  <div className="text-sm mt-1">
+                    <Badge variant="secondary" className="mr-1">BSC</Badge>
+                    <Badge variant="secondary" className="mr-1">ETH</Badge>
+                    <Badge variant="secondary" className="mr-1">TRON</Badge>
+                    <Badge variant="secondary">POLYGON</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={fetchMasterWalletInfo}
+                  className="flex items-center gap-2"
+                >
+                  <Database className="h-4 w-4" />
+                  Fetch Master Wallet Info
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => copyToClipboard('danger attack gesture cliff clap stage tag spare loop cousin either put', 'mnemonic')}
+                >
+                  {copied === 'mnemonic' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  Copy Mnemonic
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
