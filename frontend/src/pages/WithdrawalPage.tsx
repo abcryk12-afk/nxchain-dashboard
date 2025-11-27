@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { withdrawal } from '../services/api';
 import { Transaction } from '../types';
+import Header from '../components/Header';
 
 const WithdrawalPage: React.FC = () => {
   const [amount, setAmount] = useState('');
@@ -120,12 +121,14 @@ const WithdrawalPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="glass-effect rounded-xl p-6">
-        <h1 className="text-2xl font-bold gradient-text mb-2">Withdraw Funds</h1>
-        <p className="text-gray-400">
-          Withdraw your earnings to your BEP-20 wallet address
-        </p>
+    <>
+      <Header />
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="glass-effect rounded-xl p-6">
+          <h1 className="text-2xl font-bold gradient-text mb-2">Withdraw Funds</h1>
+          <p className="text-gray-400">
+            Withdraw your earnings to your BEP-20 wallet address
+          </p>
       </div>
 
       {/* Balance Overview */}
@@ -376,6 +379,7 @@ const WithdrawalPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { deposit } from '../services/api';
 import { Transaction } from '../types';
+import Header from '../components/Header';
 
 const DepositPage: React.FC = () => {
   const [amount, setAmount] = useState('');
@@ -113,9 +114,11 @@ const DepositPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="glass-effect rounded-xl p-6">
-        <h1 className="text-2xl font-bold gradient-text mb-2">Deposit Funds</h1>
+    <>
+      <Header />
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="glass-effect rounded-xl p-6">
+          <h1 className="text-2xl font-bold gradient-text mb-2">Deposit Funds</h1>
         <p className="text-gray-400">
           Deposit USDT to your NXChain wallet - Multiple networks supported
         </p>
@@ -346,6 +349,7 @@ const DepositPage: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

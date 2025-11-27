@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { support } from '../services/api';
 import { SupportTicket } from '../types';
+import Header from '../components/Header';
 
 const SupportPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('tickets');
@@ -181,13 +182,15 @@ const SupportPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="glass-effect rounded-xl p-6">
-        <h1 className="text-2xl font-bold gradient-text mb-2">Support Center</h1>
-        <p className="text-gray-400">
-          Get help with your account and find answers to common questions
-        </p>
-      </div>
+    <>
+      <Header />
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="glass-effect rounded-xl p-6">
+          <h1 className="text-2xl font-bold gradient-text mb-2">Support Center</h1>
+          <p className="text-gray-400">
+            Get help with your account and find answers to common questions
+          </p>
+        </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -464,6 +467,7 @@ const SupportPage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

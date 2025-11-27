@@ -10,6 +10,7 @@ import {
   IdentificationIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import Header from '../components/Header';
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -102,13 +103,15 @@ const ProfilePage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="glass-effect rounded-xl p-6">
-        <h1 className="text-2xl font-bold gradient-text mb-2">Profile Settings</h1>
-        <p className="text-gray-400">
-          Manage your account settings and preferences
-        </p>
-      </div>
+    <>
+      <Header />
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="glass-effect rounded-xl p-6">
+          <h1 className="text-2xl font-bold gradient-text mb-2">Profile Settings</h1>
+          <p className="text-gray-400">
+            Manage your account settings and preferences
+          </p>
+        </div>
 
       {/* User Info Card */}
       <div className="glass-effect rounded-xl p-6">
@@ -469,6 +472,7 @@ const ProfilePage: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

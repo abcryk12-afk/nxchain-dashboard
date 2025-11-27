@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { staking } from '../services/api';
 import { Staking, StakingPackage } from '../types';
+import Header from '../components/Header';
 
 const StakingPage: React.FC = () => {
   const [selectedPackage, setSelectedPackage] = useState<StakingPackage | null>(null);
@@ -135,7 +136,9 @@ const StakingPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <>
+      <Header />
+      <div className="max-w-6xl mx-auto space-y-6">
       <div className="glass-effect rounded-xl p-6">
         <h1 className="text-2xl font-bold gradient-text mb-2">Staking Packages</h1>
         <p className="text-gray-400">
@@ -403,6 +406,7 @@ const StakingPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
