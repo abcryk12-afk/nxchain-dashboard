@@ -60,7 +60,6 @@ const transactionSchema = new mongoose.Schema({
 transactionSchema.index({ user: 1, createdAt: -1 });
 transactionSchema.index({ status: 1 });
 transactionSchema.index({ type: 1 });
-transactionSchema.index({ transactionHash: 1 });
 
 // Virtual fields
 transactionSchema.virtual('id').get(function() {

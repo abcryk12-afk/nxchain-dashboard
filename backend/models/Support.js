@@ -98,7 +98,6 @@ const supportSchema = new mongoose.Schema({
 
 // Indexes for better performance
 supportSchema.index({ user: 1, status: 1 });
-supportSchema.index({ ticketNumber: 1 });
 supportSchema.index({ status: 1 });
 supportSchema.index({ category: 1 });
 supportSchema.index({ priority: 1 });

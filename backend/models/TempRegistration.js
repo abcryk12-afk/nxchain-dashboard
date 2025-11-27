@@ -57,7 +57,6 @@ const tempRegistrationSchema = new mongoose.Schema({
 });
 
 // Indexes for performance
-tempRegistrationSchema.index({ codeExpiresAt: 1 });
 tempRegistrationSchema.index({ status: 1, createdAt: -1 });
 tempRegistrationSchema.index({ ipAddress: 1 });
 tempRegistrationSchema.index({ createdAt: -1 });

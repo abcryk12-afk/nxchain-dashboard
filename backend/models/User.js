@@ -60,11 +60,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-userSchema.index({ userId: 1 });
-userSchema.index({ email: 1 });
-userSchema.index({ address: 1 });
-userSchema.index({ referralCode: 1 });
+// Indexes (only for non-unique fields)
 userSchema.index({ referredBy: 1 });
 userSchema.index({ createdAt: -1 });
 
