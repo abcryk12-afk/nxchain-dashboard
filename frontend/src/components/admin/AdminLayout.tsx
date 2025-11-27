@@ -30,11 +30,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
   // Check if user is admin
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (!user.isAdmin) {
-    // Redirect to admin login if not admin
-    React.useEffect(() => {
+  
+  React.useEffect(() => {
+    if (!user.isAdmin) {
       navigate('/admin-login');
-    }, [navigate]);
+    }
+  }, [navigate, user.isAdmin]);
+  
+  if (!user.isAdmin) {
     return null;
   }
 

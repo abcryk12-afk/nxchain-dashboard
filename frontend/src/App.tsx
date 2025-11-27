@@ -66,13 +66,12 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Layout wrapper for admin pages (no header on admin-login)
 const AdminPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const isAdminLoginPage = window.location.pathname === '/admin-login';
   
   if (isAdminLoginPage) {
     return <>{children}</>;
   }
-  
-  const { user } = useAuth();
   return (
     <>
       {user && <Header />}
