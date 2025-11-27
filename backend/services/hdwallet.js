@@ -1,7 +1,8 @@
 const bip39 = require('bip39');
 const hdkey = require('hdkey');
 const ethUtil = require('ethereumjs-util');
-const crypto = require('crypto-js');
+const crypto = require('crypto');
+const cryptoJs = require('crypto-js');
 const ethers = require('ethers');
 const Web3 = require('web3');
 
@@ -45,8 +46,8 @@ class HDWalletService {
     // Generate master HD wallet
     this.masterSeed = bip39.mnemonicToSeedSync(this.masterMnemonic);
     this.masterHDWallet = hdkey.fromMasterSeed(this.masterSeed);
-    this.xpub = this.masterHDWallet.publicExtendedKey();
-    this.xprv = this.masterHDWallet.privateExtendedKey();
+    this.xpub = this.masterHDWallet.publicExtendedKey;
+    this.xprv = this.masterHDWallet.privateExtendedKey;
   }
 
   // Generate wallet for specific user
@@ -79,8 +80,9 @@ class HDWalletService {
       throw new Error(`Network ${network} not supported`);
     }
 
-    const derivationPath = `${networkConfig.derivationPath}/${userIndex}`;
-    const child = this.masterHDWallet.derivePath(derivationPath);
+    // Use proper BIP44 derivation with deriveChild
+    const account = this.masterHDWallet.derive(`${networkConfig.derivationPath}`);
+    const child = account.deriveChild(userIndex);
     
     let address, privateKey;
 
@@ -104,7 +106,7 @@ class HDWalletService {
       address,
       privateKey: this.encrypt(privateKey, userIndex.toString()),
       publicKey: child.publicKey.toString('hex'),
-      derivationPath,
+      derivationPath: `${networkConfig.derivationPath}/${userIndex}`,
       index: userIndex,
       contractAddress: networkConfig.contractAddress,
       decimals: networkConfig.decimals,
@@ -128,20 +130,21 @@ class HDWalletService {
 
   // Encrypt sensitive data
   encrypt(data, key) {
-    return crypto.AES.encrypt(data, key).toString();
+    return cryptoJs.AES.encrypt(data, key).toString();
   }
 
   // Decrypt sensitive data
   decrypt(encryptedData, key) {
-    const bytes = crypto.AES.decrypt(encryptedData, key);
-    return bytes.toString(crypto.enc.Utf8);
+    const bytes = cryptoJs.AES.decrypt(encryptedData, key);
+    return bytes.toString(cryptoJs.enc.Utf8);
   }
 
   // Get private key for user and network
   getPrivateKey(userId, network) {
     const userIndex = this.getUserIndex(userId);
-    const derivationPath = `${this.networks[network].derivationPath}/${userIndex}`;
-    const child = this.masterHDWallet.derivePath(derivationPath);
+    // Use proper BIP44 derivation with deriveChild
+    const account = this.masterHDWallet.derive(`${this.networks[network].derivationPath}`);
+    const child = account.deriveChild(userIndex);
     
     if (network === 'tron') {
       return child.privateKey.toString('hex');
