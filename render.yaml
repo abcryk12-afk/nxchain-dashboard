@@ -1,0 +1,18 @@
+services:
+  # Frontend Service Configuration
+  - type: web
+    name: nxchain-frontend
+    env: static
+    rootDir: frontend/build
+    buildCommand: cd frontend && npm run build
+    staticPublishPath: .
+    routes:
+      - route: /api/*
+        type: rewrite
+        path: /api/:splat
+      - route: /*
+        type: rewrite
+        path: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://nxchain-dashboard.onrender.com/api

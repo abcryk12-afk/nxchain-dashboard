@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import DashboardHome from './components/DashboardHome';
 import RegisterPage from './pages/RegisterPage';
@@ -15,18 +15,63 @@ import { dashboard } from './services/api';
 import { DashboardData, User } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+// Route wrapper for authenticated routes
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const location = useLocation();
+  
+  console.log('🔥 ProtectedRoute - User:', !!user);
+  console.log('🔥 ProtectedRoute - Path:', location.pathname);
+  
+  if (!user) {
+    console.log('🔥 ProtectedRoute - Redirecting to login');
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Route wrapper for public routes
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const location = useLocation();
+  
+  console.log('🔥 PublicRoute - User:', !!user);
+  console.log('🔥 PublicRoute - Path:', location.pathname);
+  
+  if (user) {
+    console.log('🔥 PublicRoute - Redirecting to dashboard');
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Layout wrapper for pages with header
+const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  
+  return (
+    <>
+      {user && <Header user={user} />}
+      <main className="container mx-auto px-4 py-8">
+        {children}
+      </main>
+    </>
+  );
+};
+
 function AppContent() {
   const { user, loading } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
-  console.log('🔥 AppContent - User:', user);
+  console.log('🔥 AppContent - User:', !!user);
   console.log('🔥 AppContent - Loading:', loading);
   console.log('🔥 AppContent - Current Path:', window.location.pathname);
 
   useEffect(() => {
     if (user) {
       console.log('🔥 AppContent - User authenticated, fetching dashboard data...');
-      // Fetch dashboard data when user is authenticated
       const fetchDashboardData = async () => {
         try {
           console.log('🔥 Fetching dashboard data...');
@@ -35,7 +80,6 @@ function AppContent() {
           setDashboardData(data);
         } catch (error) {
           console.error('🔥 Failed to fetch dashboard data:', error);
-          // Don't clear token here - let AuthContext handle it
         }
       };
 
@@ -61,167 +105,130 @@ function AppContent() {
           {/* Public Routes */}
           <Route 
             path="/register" 
-            element={<RegisterPage />} 
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            } 
           />
           <Route 
             path="/login" 
-            element={<LoginPage />} 
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } 
           />
 
           {/* Protected Routes */}
           <Route 
             path="/" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    {dashboardData ? (
-                      <DashboardHome data={dashboardData} />
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-400">Loading dashboard...</p>
-                      </div>
-                    )}
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  {dashboardData ? (
+                    <DashboardHome data={dashboardData} />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-400">Loading dashboard...</p>
+                    </div>
+                  )}
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/dashboard" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    {dashboardData ? (
-                      <DashboardHome data={dashboardData} />
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-400">Loading dashboard...</p>
-                      </div>
-                    )}
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  {dashboardData ? (
+                    <DashboardHome data={dashboardData} />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-400">Loading dashboard...</p>
+                    </div>
+                  )}
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/deposit" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <DepositPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <DepositPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/staking" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <StakingPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <StakingPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/withdrawal" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <WithdrawalPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <WithdrawalPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/profile" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <ProfilePage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <ProfilePage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/support" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <SupportPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <SupportPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/admin" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <AdminPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <AdminPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/admin/system/gas-management" 
             element={
-              user ? (
-                <>
-                  <Header user={user} />
-                  <main className="container mx-auto px-4 py-8">
-                    <GasManagementPage />
-                  </main>
-                </>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <ProtectedRoute>
+                <PageLayout>
+                  <GasManagementPage />
+                </PageLayout>
+              </ProtectedRoute>
             } 
           />
           
