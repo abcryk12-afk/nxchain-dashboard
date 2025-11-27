@@ -35,17 +35,30 @@ const AdminLoginPage: React.FC = () => {
       });
 
       if (response.data.success) {
+        console.log('🔥 Admin Login - Response:', response.data);
+        console.log('🔥 Admin Login - User data:', response.data.user);
+        console.log('🔥 Admin Login - isAdmin:', response.data.user.isAdmin);
+        
         // Check if user is admin
         if (response.data.user.isAdmin) {
+          console.log('🔥 Admin Login - User is admin, calling login()');
           // Use AuthContext login to update global state
           login(response.data.user, response.data.token);
           
+          console.log('🔥 Admin Login - login() called, navigating to /admin');
           toast.success('Admin login successful!');
-          navigate('/admin');
+          
+          // Add delay to ensure state is updated
+          setTimeout(() => {
+            console.log('🔥 Admin Login - Navigating to /admin after delay');
+            navigate('/admin');
+          }, 100);
         } else {
+          console.log('🔥 Admin Login - User is not admin');
           toast.error('Access denied. Admin privileges required.');
         }
       } else {
+        console.log('🔥 Admin Login - Login failed:', response.data.message);
         toast.error(response.data.message || 'Login failed');
       }
     } catch (error: any) {
