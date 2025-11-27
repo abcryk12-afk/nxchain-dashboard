@@ -41,6 +41,9 @@ const AdminLoginPage: React.FC = () => {
 
       if (response.data.success) {
         console.log('🔥 Admin Login - Response:', response.data);
+      
+      // Check response format
+      if (response.data.success && response.data.user && response.data.token) {
         console.log('🔥 Admin Login - User data:', response.data.user);
         console.log('🔥 Admin Login - isAdmin:', response.data.user.isAdmin);
         
@@ -62,8 +65,12 @@ const AdminLoginPage: React.FC = () => {
           console.log('🔥 Admin Login - User is not admin');
           toast.error('Access denied. Admin privileges required.');
         }
+      } else if (response.data.success && response.data.message) {
+        // Backend returned success but no user/token
+        console.log('🔥 Admin Login - Backend response incomplete:', response.data);
+        toast.error('Login successful but user data missing. Please contact admin.');
       } else {
-        console.log('🔥 Admin Login - Login failed:', response.data.message);
+        console.log('🔥 Admin Login - Login failed:', response.data.message || 'Unknown error');
         toast.error(response.data.message || 'Login failed');
       }
     } catch (error: any) {
