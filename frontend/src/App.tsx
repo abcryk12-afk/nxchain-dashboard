@@ -9,8 +9,8 @@ import StakingPage from './pages/StakingPage';
 import WithdrawalPage from './pages/WithdrawalPage';
 import ProfilePage from './pages/ProfilePage';
 import SupportPage from './pages/SupportPage';
-import AdminPage from './pages/AdminPage';
-import GasManagementPage from './pages/GasManagementPage';
+// import AdminPage from './pages/AdminPage';
+// import GasManagementPage from './pages/GasManagementPage';
 import UserWalletManagement from './pages/admin/UserWalletManagement';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminOnlyLayout from './components/AdminOnlyLayout';
@@ -237,6 +237,8 @@ function AppContent() {
             } 
           />
           
+          {/* Temporarily disabled due to export issues */}
+          {/*
           <Route 
             path="/admin" 
             element={
@@ -258,6 +260,7 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+          */}
           
           <Route 
             path="/admin/wallet-management" 
