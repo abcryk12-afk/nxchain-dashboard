@@ -9,19 +9,8 @@ import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    if (!mounted) {
-      console.log('🔥 AdminLoginPage component loaded!');
-      alert('🔥 AdminLoginPage loaded! VERSION 7.0 - MOUNT GUARD! If you see this more than once, something is seriously wrong!');
-      setMounted(true);
-    }
-    
-    return () => {
-      console.log('🔥 AdminLoginPage unmounted');
-    };
-  }, [mounted]);
+  console.log('🔥 AdminLoginPage component loaded!');
+  alert('🔥 AdminLoginPage loaded! VERSION 8.0 - SIMPLE APP! If you see this more than once, something is seriously wrong!');
   
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
