@@ -13,6 +13,7 @@ import AdminPage from './pages/AdminPage';
 import GasManagementPage from './pages/GasManagementPage';
 import UserWalletManagement from './pages/admin/UserWalletManagement';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminOnlyLayout from './components/AdminOnlyLayout';
 import { dashboard } from './services/api';
 import { DashboardData, User } from './types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -53,6 +54,25 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   
+  return (
+    <>
+      {user && <Header user={user} />}
+      <main className="container mx-auto px-4 py-8">
+        {children}
+      </main>
+    </>
+  );
+};
+
+// Layout wrapper for admin pages (no header on admin-login)
+const AdminPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isAdminLoginPage = window.location.pathname === '/admin-login';
+  
+  if (isAdminLoginPage) {
+    return <>{children}</>;
+  }
+  
+  const { user } = useAuth();
   return (
     <>
       {user && <Header user={user} />}
@@ -104,6 +124,12 @@ function AppContent() {
     <Router>
       <div className="min-h-screen bg-nx-dark">
         <Routes>
+          {/* Admin Login - No wrapper */}
+          <Route 
+            path="/admin-login" 
+            element={<AdminLoginPage />}
+          />
+
           {/* Public Routes */}
           <Route 
             path="/register" 
@@ -216,9 +242,9 @@ function AppContent() {
             path="/admin" 
             element={
               <ProtectedRoute>
-                <PageLayout>
+                <AdminPageLayout>
                   <AdminPage />
-                </PageLayout>
+                </AdminPageLayout>
               </ProtectedRoute>
             } 
           />
@@ -227,9 +253,9 @@ function AppContent() {
             path="/admin/system/gas-management" 
             element={
               <ProtectedRoute>
-                <PageLayout>
+                <AdminPageLayout>
                   <GasManagementPage />
-                </PageLayout>
+                </AdminPageLayout>
               </ProtectedRoute>
             } 
           />
@@ -243,11 +269,6 @@ function AppContent() {
             } 
           />
 
-          <Route 
-            path="/admin-login" 
-            element={<AdminLoginPage />}
-          />
-          
           {/* Catch-all redirect to login */}
           <Route 
             path="*" 
