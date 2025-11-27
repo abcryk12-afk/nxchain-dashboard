@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { toast } from 'sonner';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState({
@@ -15,6 +16,7 @@ const AdminLoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +37,8 @@ const AdminLoginPage: React.FC = () => {
       if (response.data.success) {
         // Check if user is admin
         if (response.data.user.isAdmin) {
-          // Store admin token
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          // Use AuthContext login to update global state
+          login(response.data.user, response.data.token);
           
           toast.success('Admin login successful!');
           navigate('/admin');
