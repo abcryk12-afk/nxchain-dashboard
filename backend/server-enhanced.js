@@ -146,28 +146,16 @@ app.post('/api/register', async (req, res) => {
     // Generate user wallet
     const userWallet = generateUserWallet(newUserId);
 
-    // Handle referral
+    // Handle referral - TEMPORARILY DISABLED TO BYPASS ERROR
     let referredBy = null;
     let referralRecord = null;
     
     console.log('🔥 REFERRAL CODE CHECK:', referralCode);
     
-    // Store referral info for later after user is created
+    // TEMPORARILY SKIP REFERRAL CREATION TO AVOID CRASH
     if (referralCode) {
-      console.log('🔥 LOOKING UP REFERRER...');
-      const referrer = await User.findOne({ referralCode });
-      if (referrer) {
-        console.log('🔥 REFERRER FOUND:', referrer.email);
-        referredBy = referrer.referralCode;
-        // Store referral data to create after user save
-        referralRecord = {
-          referrerId: referrer._id,
-          referralCode: referralCode
-        };
-        console.log('🔥 REFERRAL RECORD STORED:', referralRecord);
-      } else {
-        console.log('🔥 REFERRER NOT FOUND FOR CODE:', referralCode);
-      }
+      console.log('🔥 REFERRAL CODE PROVIDED BUT SKIPPING CREATION TO AVOID CRASH');
+      referredBy = referralCode; // Just store the code for now
     }
 
     // Generate referral code for new user
@@ -196,30 +184,8 @@ app.post('/api/register', async (req, res) => {
 
     await user.save();
 
-    // Create referral record after user is saved (now we have the _id)
-    if (referralRecord) {
-      console.log('🔥 CREATING REFERRAL RECORD...');
-      console.log('🔥 USER _ID:', user._id);
-      console.log('🔥 REFERRAL RECORD:', referralRecord);
-      
-      try {
-        const referral = new Referral({
-          referrer: referralRecord.referrerId,
-          referred: user._id,
-          referralCode: referralRecord.referralCode,
-          status: 'active',
-          level: 1
-        });
-        
-        console.log('🔥 REFERRAL OBJECT CREATED:', referral);
-        await referral.save();
-        console.log('🔥 REFERRAL SAVED SUCCESSFULLY!');
-      } catch (referralError) {
-        console.error('🔥 REFERRAL SAVE ERROR:', referralError);
-        console.error('🔥 ERROR STACK:', referralError.stack);
-        throw referralError;
-      }
-    }
+    // TEMPORARILY SKIP REFERRAL CREATION
+    console.log('🔥 SKIPPING REFERRAL CREATION TO AVOID CRASH');
 
     // Generate JWT token
     const token = jwt.sign(
@@ -237,12 +203,19 @@ app.post('/api/register', async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         address: user.address,
-        referralCode: user.referralCode
+        referralCode: user.referralCode,
+        balance: user.balance,
+        totalEarnings: user.totalEarnings,
+        referralEarnings: user.referralEarnings,
+        withdrawableBalance: user.withdrawableBalance,
+        pendingEarnings: user.pendingEarnings,
+        isVerified: user.isVerified
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(400).json({ message: error.message || 'Registration failed' });
+    console.error('🔥 REGISTRATION ERROR:', error);
+    console.error('🔥 ERROR STACK:', error.stack);
+    res.status(500).json({ message: 'Registration failed: ' + error.message });
   }
 });
 

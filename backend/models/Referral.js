@@ -85,13 +85,20 @@ referralSchema.virtual('isCompleted').get(function() {
 
 // Pre-save middleware
 referralSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  
-  if (this.isModified('status') && this.status === 'active' && !this.activatedAt) {
-    this.activatedAt = Date.now();
+  try {
+    console.log('🔥 REFERRAL PRE-SAVE HOOK CALLED');
+    this.updatedAt = Date.now();
+    
+    if (this.isModified('status') && this.status === 'active' && !this.activatedAt) {
+      this.activatedAt = Date.now();
+    }
+    
+    console.log('🔥 REFERRAL PRE-SAVE HOOK - CALLING NEXT()');
+    next();
+  } catch (error) {
+    console.error('🔥 REFERRAL PRE-SAVE HOOK ERROR:', error);
+    next(error);
   }
-  
-  next();
 });
 
 // Static methods
