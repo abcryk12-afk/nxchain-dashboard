@@ -5,12 +5,11 @@ import { Shield, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   console.log('🔥 AdminLoginPage component loaded!');
-  alert('🔥 AdminLoginPage loaded! VERSION 8.0 - SIMPLE APP! If you see this more than once, something is seriously wrong!');
   
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
