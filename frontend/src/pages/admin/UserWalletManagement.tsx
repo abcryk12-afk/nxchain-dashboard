@@ -613,4 +613,16 @@ const UserWalletManagementWithLayout: React.FC = () => {
   );
 };
 
-export default UserWalletManagementWithLayout;
+};
+
+// Wrap with AdminLayout
+const UserWalletManagementWithLayout: React.FC = () => {
+  return (
+    <AdminLayout title="Wallet Management">
+      <UserWalletManagement />
+    </AdminLayout>
+  );
+};
+
+export default UserWalletManagement;
+
