@@ -60,15 +60,23 @@ class DepositListener {
 
       console.log(`Processing block ${blockNumber} with ${block.transactions.length} transactions`);
 
-      // Process only first 50 transactions to prevent memory issues
-      const transactionsToProcess = block.transactions.slice(0, 50);
+      // Smart filtering: Process only transactions with value > 0 or to known addresses
+      const valuableTransactions = block.transactions.filter(tx => {
+        // Keep transactions with value > 0.001 BNB
+        if (tx.value && parseFloat(ethers.formatEther(tx.value)) > 0.001) {
+          return true;
+        }
+        // Keep transactions that might be token transfers (has logs)
+        if (tx.to) {
+          return true; // Process all to-address transactions for token monitoring
+        }
+        return false;
+      });
+
+      console.log(`Processing ${valuableTransactions.length} relevant transactions (skipped ${block.transactions.length - valuableTransactions.length} zero-value/empty transactions)`);
       
-      for (const tx of transactionsToProcess) {
+      for (const tx of valuableTransactions) {
         await this.processTransaction(tx);
-      }
-      
-      if (block.transactions.length > 50) {
-        console.log(`Skipped ${block.transactions.length - 50} transactions to prevent memory issues`);
       }
     } catch (error) {
       console.error(`Error processing block ${blockNumber}:`, error);
