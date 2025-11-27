@@ -56,7 +56,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
   return (
     <>
-      {user && <Header user={user} />}
+      {user && <Header />}
       <main className="container mx-auto px-4 py-8">
         {children}
       </main>
@@ -75,7 +75,7 @@ const AdminPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { user } = useAuth();
   return (
     <>
-      {user && <Header user={user} />}
+      {user && <Header />}
       <main className="container mx-auto px-4 py-8">
         {children}
       </main>
