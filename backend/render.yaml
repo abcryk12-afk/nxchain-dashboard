@@ -1,0 +1,32 @@
+services:
+  # Backend Service
+  - type: web
+    name: nxchain-dashboard
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    
+    # Environment variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: ${MONGODB_URI}
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+      - key: EMAIL_HOST
+        value: ${EMAIL_HOST}
+      - key: EMAIL_USER
+        value: ${EMAIL_USER}
+      - key: EMAIL_PASS
+        value: ${EMAIL_PASS}
+      - key: INFURA_PROJECT_ID
+        value: ${INFURA_PROJECT_ID}
+      - key: BSC_RPC_URL
+        value: ${BSC_RPC_URL}
+      - key: ETHEREUM_RPC_URL
+        value: ${ETHEREUM_RPC_URL}
+      - key: POLYGON_RPC_URL
+        value: ${POLYGON_RPC_URL}
+      - key: TRON_RPC_URL
+        value: ${TRON_RPC_URL}
