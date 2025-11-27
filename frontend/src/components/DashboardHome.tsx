@@ -90,7 +90,7 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data }) => {
             <p className="text-gray-400">Here's your investment overview</p>
           </div>
 
-      {/* Stats Grid */}
+          {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-effect rounded-xl p-6 card-hover">
           <div className="flex items-center justify-between mb-4">
@@ -416,6 +416,7 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data }) => {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </>
   );
