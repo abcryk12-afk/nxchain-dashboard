@@ -56,7 +56,16 @@ function generateUserWallet(userId) {
   try {
     const masterSeedPhrase = process.env.MASTER_SEED_PHRASE || 'danger attack gesture cliff clap stage tag spare loop cousin either put';
     const hdNode = ethers.HDNodeWallet.fromPhrase(masterSeedPhrase);
-    const derivationPath = `m/44'/60'/0'/0/${userId}`;
+    
+    // Convert userId to unique numeric index using hash
+    let hash = 0;
+    for (let i = 0; i < userId.length; i++) {
+      const char = userId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const userIndex = Math.abs(hash) % 1000000000; // Ensure positive and within reasonable range
+    const derivationPath = `m/44'/60'/0'/0/${userIndex}`;
     const userWalletNode = hdNode.derivePath(derivationPath);
     
     return {
