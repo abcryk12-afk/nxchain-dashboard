@@ -128,9 +128,10 @@ setInterval(async () => {
 // Routes
 app.use('/api/admin', adminRoutes);
 
-// Registration with wallet generation (simplified for testing)
+// Registration with wallet generation (simplified for testing) - UPDATED VERSION
 app.post('/api/register', async (req, res) => {
   try {
+    console.log('🔥 REGISTER ENDPOINT CALLED - UPDATED VERSION');
     const { email, password, firstName, lastName, referralCode } = req.body;
 
     // Check if user already exists
@@ -149,16 +150,23 @@ app.post('/api/register', async (req, res) => {
     let referredBy = null;
     let referralRecord = null;
     
+    console.log('🔥 REFERRAL CODE CHECK:', referralCode);
+    
     // Store referral info for later after user is created
     if (referralCode) {
+      console.log('🔥 LOOKING UP REFERRER...');
       const referrer = await User.findOne({ referralCode });
       if (referrer) {
+        console.log('🔥 REFERRER FOUND:', referrer.email);
         referredBy = referrer.referralCode;
         // Store referral data to create after user save
         referralRecord = {
           referrerId: referrer._id,
           referralCode: referralCode
         };
+        console.log('🔥 REFERRAL RECORD STORED:', referralRecord);
+      } else {
+        console.log('🔥 REFERRER NOT FOUND FOR CODE:', referralCode);
       }
     }
 
@@ -190,6 +198,10 @@ app.post('/api/register', async (req, res) => {
 
     // Create referral record after user is saved (now we have the _id)
     if (referralRecord) {
+      console.log('🔥 CREATING REFERRAL RECORD...');
+      console.log('🔥 USER _ID:', user._id);
+      console.log('🔥 REFERRAL RECORD:', referralRecord);
+      
       const referral = new Referral({
         referrer: referralRecord.referrerId,
         referred: user._id,
@@ -197,7 +209,10 @@ app.post('/api/register', async (req, res) => {
         status: 'active',
         level: 1
       });
+      
+      console.log('🔥 REFERRAL OBJECT CREATED:', referral);
       await referral.save();
+      console.log('🔥 REFERRAL SAVED SUCCESSFULLY!');
     }
 
     // Generate JWT token
