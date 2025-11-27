@@ -594,8 +594,8 @@ export default function UserWalletManagement() {
           <CardContent>
             <div className="flex flex-col items-center justify-center text-gray-500">
               <Search className="h-12 w-12 mb-4 text-gray-300" />
-              <h3 className="text-lg font-medium mb-2">No User Selected</h3>
-              <p>Search for a user to view wallet details.</p>
+              <h3 className="text-lg font-medium mb-2">Select a User</h3>
+              <p>Please select a user to view their wallet details.</p>
             </div>
           </CardContent>
         </Card>
