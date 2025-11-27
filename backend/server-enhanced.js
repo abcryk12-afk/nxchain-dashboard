@@ -147,20 +147,18 @@ app.post('/api/register', async (req, res) => {
 
     // Handle referral
     let referredBy = null;
+    let referralRecord = null;
+    
+    // Store referral info for later after user is created
     if (referralCode) {
       const referrer = await User.findOne({ referralCode });
       if (referrer) {
         referredBy = referrer.referralCode;
-        
-        // Create referral record
-        const referral = new Referral({
-          referrer: referrer._id,
-          referred: newUser._id,
-          referralCode,
-          status: 'active',
-          level: 1
-        });
-        await referral.save();
+        // Store referral data to create after user save
+        referralRecord = {
+          referrerId: referrer._id,
+          referralCode: referralCode
+        };
       }
     }
 
@@ -189,6 +187,18 @@ app.post('/api/register', async (req, res) => {
     });
 
     await user.save();
+
+    // Create referral record after user is saved (now we have the _id)
+    if (referralRecord) {
+      const referral = new Referral({
+        referrer: referralRecord.referrerId,
+        referred: user._id,
+        referralCode: referralRecord.referralCode,
+        status: 'active',
+        level: 1
+      });
+      await referral.save();
+    }
 
     // Generate JWT token
     const token = jwt.sign(
@@ -237,21 +247,17 @@ app.post('/api/verify-otp', async (req, res) => {
 
     // Handle referral
     let referredBy = null;
+    let referralRecord = null;
+    
     if (tempReg.registrationData.referralCode) {
       const referrer = await User.findOne({ referralCode: tempReg.registrationData.referralCode });
       if (referrer) {
         referredBy = referrer.referralCode;
-        
-        // Create referral record
-        const referral = new Referral({
-          referrer: referrer._id,
-          referred: newUser._id,
-          referralCode: referrer.referralCode,
-          commission: 0,
-          status: 'pending',
-          createdAt: new Date()
-        });
-        await referral.save();
+        // Store referral data to create after user save
+        referralRecord = {
+          referrerId: referrer._id,
+          referralCode: referrer.referralCode
+        };
       }
     }
 
@@ -274,6 +280,19 @@ app.post('/api/verify-otp', async (req, res) => {
     });
 
     await user.save();
+
+    // Create referral record after user is saved (now we have the _id)
+    if (referralRecord) {
+      const referral = new Referral({
+        referrer: referralRecord.referrerId,
+        referred: user._id,
+        referralCode: referralRecord.referralCode,
+        commission: 0,
+        status: 'pending',
+        createdAt: new Date()
+      });
+      await referral.save();
+    }
 
     // Generate JWT token
     const token = jwt.sign(
