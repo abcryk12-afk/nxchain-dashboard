@@ -27,11 +27,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   console.log('🔥 ProtectedRoute - User:', !!user);
   console.log('🔥 ProtectedRoute - Path:', location.pathname);
   console.log('🔥 ProtectedRoute - User Data:', user);
+  console.log('🔥 ProtectedRoute - User isAdmin:', user?.isAdmin);
   
   if (!user) {
     console.log('🔥 ProtectedRoute - Redirecting to login');
     // Check if this is an admin route
     if (location.pathname.startsWith('/admin')) {
+      console.log('🔥 ProtectedRoute - Admin route, redirecting to admin-login');
       return <Navigate to="/admin-login" state={{ from: location }} replace />;
     }
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -43,6 +45,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/admin-login" state={{ from: location }} replace />;
   }
   
+  console.log('🔥 ProtectedRoute - Access granted, rendering children');
   return <>{children}</>;
 };
 

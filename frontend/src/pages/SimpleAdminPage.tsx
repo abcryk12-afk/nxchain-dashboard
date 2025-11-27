@@ -6,11 +6,18 @@ const SimpleAdminPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  console.log('🔥 SimpleAdminPage - Component loaded');
+  console.log('🔥 SimpleAdminPage - User:', user);
+  console.log('🔥 SimpleAdminPage - User isAdmin:', user?.isAdmin);
+
   // Admin check
   if (!user || !user.isAdmin) {
+    console.log('🔥 SimpleAdminPage - Not admin or no user, redirecting to admin-login');
     navigate('/admin-login');
     return null;
   }
+
+  console.log('🔥 SimpleAdminPage - Admin check passed, rendering dashboard');
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
