@@ -21,25 +21,67 @@ const userSchema = new mongoose.Schema({
   privateKeyEncrypted: { type: String, required: true },
   derivationPath: { type: String, required: true },
   
+  // HD Wallet Integration
+  walletGenerated: { type: Boolean, default: false, index: true },
+  hdWalletId: { type: String, default: null, index: true }, // Reference to Wallet model
+  multiNetworkAddresses: {
+    bnb: {
+      address: String,
+      privateKeyEncrypted: String,
+      publicKey: String,
+      derivationPath: String,
+      contractAddress: String,
+      decimals: Number,
+      createdAt: { type: Date, default: Date.now }
+    },
+    ethereum: {
+      address: String,
+      privateKeyEncrypted: String,
+      publicKey: String,
+      derivationPath: String,
+      contractAddress: String,
+      decimals: Number,
+      createdAt: { type: Date, default: Date.now }
+    },
+    tron: {
+      address: String,
+      privateKeyEncrypted: String,
+      publicKey: String,
+      derivationPath: String,
+      contractAddress: String,
+      decimals: Number,
+      createdAt: { type: Date, default: Date.now }
+    },
+    polygon: {
+      address: String,
+      privateKeyEncrypted: String,
+      publicKey: String,
+      derivationPath: String,
+      contractAddress: String,
+      decimals: Number,
+      createdAt: { type: Date, default: Date.now }
+    }
+  },
+  
   // Balance info
-  balance: { type: Number, default: 0 }, // Internal platform balance (USD equivalent)
+  balance: { type: Number, default: 0, min: 0 }, // Internal platform balance (USD equivalent)
   onChainBalance: { type: Number, default: 0 }, // On-chain wallet balance
   
   // Referral info
-  referralCode: { type: String, required: true, unique: true },
-  sponsorId: { type: String, default: null }, // Sponsor's userId
+  referralCode: { type: String, required: true, unique: true, index: true },
+  sponsorId: { type: String, default: null, index: true }, // Sponsor's userId
   referredBy: { type: String, default: null }, // Legacy field - keeping for compatibility
   
   // Earnings
-  totalEarnings: { type: Number, default: 0 },
-  referralEarnings: { type: Number, default: 0 },
-  withdrawableBalance: { type: Number, default: 0 },
-  pendingEarnings: { type: Number, default: 0 },
+  totalEarnings: { type: Number, default: 0, min: 0 },
+  referralEarnings: { type: Number, default: 0, min: 0 },
+  withdrawableBalance: { type: Number, default: 0, min: 0 },
+  pendingEarnings: { type: Number, default: 0, min: 0 },
   
   // Status
-  isVerified: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: false, index: true },
   isFrozen: { type: Boolean, default: false },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: true, index: true },
   kycStatus: { type: String, enum: ['none', 'pending', 'verified', 'rejected'], default: 'none' },
   
   // Security
@@ -56,11 +98,10 @@ const userSchema = new mongoose.Schema({
   withdrawalCount: { type: Number, default: 0 },
   
   // Admin settings
-  isAdmin: { type: Boolean, default: false },
-  // isActive field removed - duplicate from line 40
+  isAdmin: { type: Boolean, default: false, index: true },
   
   // Timestamps
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now, index: true },
   updatedAt: { type: Date, default: Date.now }
 }, {
   timestamps: true

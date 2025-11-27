@@ -829,3 +829,5 @@ const GasManagementPage: React.FC = () => {
 
 export default GasManagementPage;
 } 
+}  
+ 
