@@ -143,11 +143,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-nx-dark">
       <Routes>
-          {/* Admin Login - No wrapper */}
-          <Route 
-            path="/admin-login" 
-            element={<AdminLoginPage />}
-          />
+          {/* Admin Login - Direct Route */}
+          <Route path="/admin-login" element={<AdminLoginPage />} />
 
           {/* Public Routes */}
           <Route 
