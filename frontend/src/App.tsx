@@ -11,7 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import SupportPage from './pages/SupportPage';
 // import AdminPage from './pages/AdminPage';
 // import GasManagementPage from './pages/GasManagementPage';
-import UserWalletManagement from './pages/admin/UserWalletManagement';
+// import UserWalletManagement from './pages/admin/UserWalletManagement';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminOnlyLayout from './components/AdminOnlyLayout';
 import { dashboard } from './services/api';
@@ -262,6 +262,8 @@ function AppContent() {
           />
           */}
           
+          {/* Temporarily disabled due to export issues */}
+          {/*
           <Route 
             path="/admin/wallet-management" 
             element={
@@ -270,6 +272,7 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+          */}
 
           {/* Catch-all redirect to login */}
           <Route 
