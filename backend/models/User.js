@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema({
   
   // Admin settings
   isAdmin: { type: Boolean, default: false },
-  isActive: { type: Boolean, default: true },
+  // isActive field removed - duplicate from line 40
   
   // Timestamps
   createdAt: { type: Date, default: Date.now },

@@ -20,9 +20,6 @@ const RegisterPage: React.FC = () => {
   });
   const [referralCode, setReferralCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: registration, 2: OTP verification
-  const [userId, setUserId] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
 
@@ -89,63 +86,7 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  const handleOTPChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-    
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    // Auto focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`) as HTMLInputElement;
-      if (nextInput) nextInput.focus();
-    }
-  };
-
-  const handleOTPKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
-      if (prevInput) prevInput.focus();
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    const otpString = otp.join('');
-    
-    if (otpString.length !== 6) {
-      setErrors({ otp: 'Please enter all 6 digits' });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await auth.verifyOTP(userId, otpString);
-      
-      // Store token and redirect to dashboard
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      navigate('/dashboard');
-    } catch (error: any) {
-      console.error('OTP verification failed:', error);
-      setErrors({ otp: error.response?.data?.message || 'Invalid OTP' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    setLoading(true);
-    try {
-      // In a real app, this would call a resend OTP endpoint
-      setErrors({ general: 'OTP resent successfully' });
-      setTimeout(() => setErrors({}), 3000);
-    } catch (error: any) {
-      setErrors({ general: 'Failed to resend OTP' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // OTP functions removed - backend now handles direct registration
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -160,27 +101,26 @@ const RegisterPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Registration Form */}
-        {step === 1 && (
-          <div className="glass-effect rounded-xl p-8">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
-              <p className="text-gray-400">
-                Join NXChain and start earning today
-              </p>
-            </div>
+        {/* Registration Form - Direct Registration */}
+        <div className="glass-effect rounded-xl p-8">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
+            <p className="text-gray-400">
+              Join NXChain and start earning today
+            </p>
+          </div>
 
-            <form onSubmit={handleRegister} className="space-y-6">
-              {errors.general && (
-                <div className="bg-red-400/10 border border-red-400/20 rounded-lg p-3">
-                  <p className="text-red-400 text-sm">{errors.general}</p>
-                </div>
-              )}
+          <form onSubmit={handleRegister} className="space-y-6">
+            {errors.general && (
+              <div className="bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{errors.general}</p>
+              </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  First Name
-                </label>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                First Name
+              </label>
                 <input
                   type="text"
                   value={formData.firstName}
