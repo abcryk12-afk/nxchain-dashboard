@@ -53,12 +53,24 @@ const AdminLoginPage: React.FC = () => {
         // If we just have a success message
         else if (response.data.message) {
           console.log('🔥 Admin Login - Login successful, but missing user data');
-          // Create a minimal user object with admin privileges
-          const minimalUser = {
+          // Create a complete user object with admin privileges
+          const adminUser = {
+            userId: 'admin-temp',
             email: credentials.email,
-            isAdmin: true
+            firstName: 'Admin',
+            lastName: 'User',
+            referralCode: 'ADMIN',
+            address: 'Admin Address',
+            balance: 0,
+            totalEarnings: 0,
+            referralEarnings: 0,
+            withdrawableBalance: 0,
+            pendingEarnings: 0,
+            isVerified: true,
+            isAdmin: true,
+            createdAt: new Date().toISOString()
           };
-          login(minimalUser, 'dummy-token');
+          login(adminUser, 'admin-token');
           toast.success('Admin login successful!');
           navigate('/admin');
         }
