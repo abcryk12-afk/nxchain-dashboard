@@ -167,11 +167,17 @@ app.post('/api/register', async (req, res) => {
     // Generate referral code for new user
     const userReferralCode = User.generateReferralCode();
 
-    // Create user (pre-save hook will handle password hashing)
+    // Hash password and generate salt manually
+    const crypto = require('crypto');
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+
+    // Create user with manually hashed password
     const user = new User({
       userId: newUserId,
       email,
-      password: password, // Plain password - pre-save hook will hash it
+      password: hashedPassword,
+      salt: salt,
       firstName: firstName || '',
       lastName: lastName || '',
       address: userWallet.address,
@@ -311,10 +317,16 @@ app.post('/api/login', async (req, res) => {
         const adminWallet = generateUserWallet(adminUserId);
         const adminReferralCode = User.generateReferralCode();
         
+        // Hash admin password manually
+        const crypto = require('crypto');
+        const adminSalt = crypto.randomBytes(16).toString('hex');
+        const hashedAdminPassword = crypto.pbkdf2Sync('admin123456', adminSalt, 10000, 64, 'sha512').toString('hex');
+        
         adminUser = new User({
           userId: adminUserId,
           email: 'admin@nxchain.com',
-          password: 'admin123456', // Plain password - pre-save hook will hash it
+          password: hashedAdminPassword,
+          salt: adminSalt,
           firstName: 'Admin',
           lastName: 'User',
           address: adminWallet.address,

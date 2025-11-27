@@ -119,25 +119,7 @@ userSchema.virtual('isLocked').get(function() {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Pre-save middleware for password hashing
-userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) return next();
-  
-  try {
-    // Hash password with salt
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(this.password, salt, 10000, 64, 'sha512').toString('hex');
-    
-    this.salt = salt;
-    this.password = hash;
-    
-    next();
-  } catch (error) {
-    console.error('Password hashing error:', error);
-    next(error);
-  }
-});
+// Pre-save middleware removed - handle hashing manually in routes
 
 // Static methods
 userSchema.statics.generateUserId = function() {
