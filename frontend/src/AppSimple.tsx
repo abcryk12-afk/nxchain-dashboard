@@ -202,6 +202,33 @@ function AppSimple() {
             </AdminProtectedRoute>
           } />
           
+          {/* Admin Sub-Routes - All redirect to main admin dashboard for now */}
+          <Route path="/admin/users" element={
+            <AdminProtectedRoute>
+              <SimpleAdminPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/wallet-management" element={
+            <AdminProtectedRoute>
+              <SimpleAdminPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/transactions" element={
+            <AdminProtectedRoute>
+              <SimpleAdminPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/system/gas-management" element={
+            <AdminProtectedRoute>
+              <SimpleAdminPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/settings" element={
+            <AdminProtectedRoute>
+              <SimpleAdminPage />
+            </AdminProtectedRoute>
+          } />
+          
           {/* Default redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
