@@ -7,9 +7,7 @@ const nodemailer = require('nodemailer');
 const qrcode = require('qrcode');
 const crypto = require('crypto');
 
-// Import blockchain components
-const WalletManager = require('./blockchain/walletManager');
-const DepositListener = require('./blockchain/depositListener');
+// Import routes
 const adminRoutes = require('./admin/adminRoutes');
 
 // Import models
@@ -51,6 +49,31 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nxchain')
 console.log('🚀 NXChain API Server starting (lightweight mode)...');
 console.log('📡 Blockchain scanner and sweep worker should run as separate processes');
 
+// Simple wallet generation for registration (moved from WalletManager)
+const { ethers } = require('ethers');
+
+function generateUserWallet(userId) {
+  try {
+    const masterSeedPhrase = process.env.MASTER_SEED_PHRASE || 'danger attack gesture cliff clap stage tag spare loop cousin either put';
+    const hdNode = ethers.HDNodeWallet.fromPhrase(masterSeedPhrase);
+    const derivationPath = `m/44'/60'/0'/0/${userId}`;
+    const userWalletNode = hdNode.derivePath(derivationPath);
+    
+    return {
+      userId,
+      address: userWalletNode.address,
+      publicKey: userWalletNode.publicKey,
+      privateKey: userWalletNode.privateKey,
+      privateKeyEncrypted: userWalletNode.privateKey, // Simplified for now
+      derivationPath,
+      created_at: new Date()
+    };
+  } catch (error) {
+    console.error('Failed to generate user wallet:', error);
+    throw error;
+  }
+}
+
 // Email Transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -79,18 +102,9 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Start deposit listener
-depositListener.startListening().catch(console.error);
-
-// Monitor token contracts
-const tokenContracts = [
-  process.env.USDT_CONTRACT || '0x55d398326f99059ff775485246999027b3197955', // USDT on BSC
-  process.env.USDC_CONTRACT || '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // USDC on BSC
-  process.env.BUSD_CONTRACT || '0xe9e7cea3dedca5984780bafc599bd69add087d56'  // BUSD on BSC
-];
-
-tokenContracts.forEach(contract => {
-  depositListener.monitorTokenTransfers(contract);
-});
+// Blockchain monitoring moved to separate workers
+// depositListener.startListening() - REMOVED
+// tokenContracts.forEach() - REMOVED
 
 // Cleanup expired registrations every 5 minutes
 setInterval(async () => {
@@ -119,7 +133,7 @@ app.post('/api/register', async (req, res) => {
     const newUserId = User.generateUserId();
 
     // Generate user wallet
-    const userWallet = walletManager.generateUserWallet(newUserId);
+    const userWallet = generateUserWallet(newUserId);
 
     // Handle referral
     let referredBy = null;
@@ -203,7 +217,7 @@ app.post('/api/verify-otp', async (req, res) => {
     const newUserId = User.generateUserId();
 
     // Generate user wallet
-    const userWallet = walletManager.generateUserWallet(newUserId);
+    const userWallet = generateUserWallet(newUserId);
 
     // Handle referral
     let referredBy = null;
