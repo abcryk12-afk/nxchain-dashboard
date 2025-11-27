@@ -92,44 +92,80 @@ setInterval(async () => {
 // Routes
 app.use('/api/admin', adminRoutes);
 
-// Registration with wallet generation
+// Registration with wallet generation (simplified for testing)
 app.post('/api/register', async (req, res) => {
   try {
-    const { email, password, referralCode } = req.body;
+    const { email, password, firstName, lastName, referralCode } = req.body;
 
-    // Create temporary registration
-    const tempReg = await TempRegistration.createTempRegistration(
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Generate user ID
+    const newUserId = User.generateUserId();
+
+    // Generate user wallet
+    const userWallet = walletManager.generateUserWallet(newUserId);
+
+    // Handle referral
+    let referredBy = null;
+    if (referralCode) {
+      const referrer = await User.findOne({ referralCode });
+      if (referrer) {
+        referredBy = referrer.referralCode;
+        
+        // Create referral record
+        const referral = new Referral({
+          referrerId: referrer.userId,
+          referredId: newUserId,
+          referralCode,
+          status: 'active',
+          level: 1
+        });
+        await referral.save();
+      }
+    }
+
+    // Generate referral code for new user
+    const userReferralCode = User.generateReferralCode();
+
+    // Create user
+    const user = new User({
+      userId: newUserId,
       email,
-      { password, referralCode },
-      req.ip,
-      req.get('User-Agent')
+      password,
+      firstName: firstName || '',
+      lastName: lastName || '',
+      address: userWallet.address,
+      publicKey: userWallet.publicKey,
+      privateKeyEncrypted: userWallet.privateKeyEncrypted,
+      derivationPath: userWallet.derivationPath,
+      referralCode: userReferralCode,
+      referredBy
+    });
+
+    await user.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.userId, email: user.email },
+      process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
+      { expiresIn: '24h' }
     );
 
-    // Send verification email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'NXChain - Verify Your Email',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #00d4ff;">NXChain Registration</h2>
-          <p>Thank you for registering with NXChain!</p>
-          <p>Your verification code is:</p>
-          <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0;">
-            ${tempReg.verificationCode}
-          </div>
-          <p>This code will expire in 10 minutes.</p>
-          <p style="color: #666; font-size: 12px;">If you didn't request this, please ignore this email.</p>
-        </div>
-      `
-    };
-
-    await transporter.sendMail(mailOptions);
-    await tempReg.markEmailSent();
-
     res.status(201).json({ 
-      message: 'Verification code sent to your email',
-      userId: tempReg._id
+      message: 'Registration successful',
+      token,
+      user: {
+        userId: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        address: user.address,
+        referralCode: user.referralCode
+      }
     });
   } catch (error) {
     console.error('Registration error:', error);

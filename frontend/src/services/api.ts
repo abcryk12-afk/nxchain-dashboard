@@ -32,7 +32,7 @@ api.interceptors.request.use((config) => {
 
 // Auth endpoints
 export const auth = {
-  register: async (data: RegisterData): Promise<{ message: string; userId: string }> => {
+  register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await api.post('/register', data);
     return response.data;
   },
