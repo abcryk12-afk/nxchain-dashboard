@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import SimpleAdminPage from './pages/SimpleAdminPage';
@@ -177,7 +176,6 @@ function AppSimple() {
           {/* Default redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-        <Toaster />
       </Router>
     </AuthProvider>
   );
