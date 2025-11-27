@@ -141,9 +141,8 @@ function AppContent() {
   }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-nx-dark">
-        <Routes>
+    <div className="min-h-screen bg-nx-dark">
+      <Routes>
           {/* Admin Login - No wrapper */}
           <Route 
             path="/admin-login" 
@@ -308,15 +307,16 @@ function AppContent() {
           {/* Catch-all redirect to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </div>
-    </Router>
+    </div>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }
