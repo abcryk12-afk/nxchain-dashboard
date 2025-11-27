@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import SimpleAdminPage from './pages/SimpleAdminPage';
@@ -35,6 +36,7 @@ function AppSimple() {
           />
           <Route path="*" element={<Navigate to="/admin-login" replace />} />
         </Routes>
+        <Toaster />
       </Router>
     </AuthProvider>
   );
