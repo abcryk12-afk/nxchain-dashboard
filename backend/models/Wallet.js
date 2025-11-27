@@ -4,8 +4,7 @@ const walletSchema = new mongoose.Schema({
   userId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   
   // HD Wallet Information
@@ -90,7 +89,6 @@ const walletSchema = new mongoose.Schema({
 });
 
 // Indexes for performance
-walletSchema.index({ userId: 1 });
 walletSchema.index({ 'addresses.bnb.address': 1 });
 walletSchema.index({ 'addresses.ethereum.address': 1 });
 walletSchema.index({ 'addresses.tron.address': 1 });
