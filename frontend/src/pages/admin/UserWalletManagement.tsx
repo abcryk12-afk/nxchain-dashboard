@@ -99,7 +99,7 @@ interface WalletBalance {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nxchain-dashboard.onrender.com/api';
 
-export default function UserWalletManagement() {
+const UserWalletManagement: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
