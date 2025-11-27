@@ -10,6 +10,7 @@ class DepositListener {
     this.walletManager = new WalletManager();
     this.isListening = false;
     this.processedTxs = new Set(); // Track processed transactions
+    this.maxProcessedTxs = 1000; // Limit processed transactions to prevent memory issues
     this.initializeProvider();
   }
 
@@ -59,11 +60,31 @@ class DepositListener {
 
       console.log(`Processing block ${blockNumber} with ${block.transactions.length} transactions`);
 
-      for (const tx of block.transactions) {
+      // Process only first 50 transactions to prevent memory issues
+      const transactionsToProcess = block.transactions.slice(0, 50);
+      
+      for (const tx of transactionsToProcess) {
         await this.processTransaction(tx);
+      }
+      
+      if (block.transactions.length > 50) {
+        console.log(`Skipped ${block.transactions.length - 50} transactions to prevent memory issues`);
       }
     } catch (error) {
       console.error(`Error processing block ${blockNumber}:`, error);
+    }
+  }
+
+  // Add transaction to processed set with memory management
+  addToProcessedTxs(txHash) {
+    this.processedTxs.add(txHash);
+    
+    // Clean up old transactions if set gets too large
+    if (this.processedTxs.size > this.maxProcessedTxs) {
+      const entries = Array.from(this.processedTxs);
+      const toRemove = entries.slice(0, 500); // Remove oldest 500
+      toRemove.forEach(hash => this.processedTxs.delete(hash));
+      console.log(`Cleaned up ${toRemove.length} old processed transactions to prevent memory issues`);
     }
   }
 
@@ -110,7 +131,7 @@ class DepositListener {
       // Check if deposit already exists
       const existingDeposit = await Deposit.findOne({ txHash: tx.hash });
       if (existingDeposit) {
-        this.processedTxs.add(tx.hash);
+        this.addToProcessedTxs(tx.hash);
         return;
       }
 
@@ -142,7 +163,7 @@ class DepositListener {
       console.log(`User: ${userWallet.userId}`);
 
       // Mark as processed
-      this.processedTxs.add(tx.hash);
+      this.addToProcessedTxs(tx.hash);
 
       // Trigger auto-sweep
       setTimeout(() => {
