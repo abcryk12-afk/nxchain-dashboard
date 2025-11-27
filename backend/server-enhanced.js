@@ -46,23 +46,10 @@ app.use(express.json());
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nxchain');
 
-// Initialize blockchain components with error handling
-let walletManager, depositListener;
-try {
-  walletManager = new WalletManager();
-  console.log('✅ Wallet Manager initialized successfully');
-} catch (error) {
-  console.error('❌ Failed to initialize Wallet Manager:', error);
-  walletManager = null;
-}
-
-try {
-  depositListener = new DepositListener();
-  console.log('✅ Deposit Listener initialized successfully');
-} catch (error) {
-  console.error('❌ Failed to initialize Deposit Listener:', error);
-  depositListener = null;
-}
+// API Server - Lightweight (No blockchain components)
+// Blockchain operations moved to separate workers
+console.log('🚀 NXChain API Server starting (lightweight mode)...');
+console.log('📡 Blockchain scanner and sweep worker should run as separate processes');
 
 // Email Transporter
 const transporter = nodemailer.createTransport({
@@ -672,9 +659,11 @@ app.get('/api/health', (req, res) => {
       status: 'ok',
       timestamp: new Date(),
       uptime: process.uptime(),
+      server: 'API Server (Lightweight)',
       blockchain: {
-        depositListener: depositListener ? depositListener.getStatus() : 'disabled',
-        masterWallet: walletManager ? walletManager.getMasterWallet().address : 'disabled'
+        scanner: 'separate_process',
+        sweepWorker: 'separate_process',
+        note: 'Blockchain operations moved to separate workers'
       }
     };
     res.json(healthData);
@@ -704,13 +693,9 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`NXChain Server running on port ${PORT}`);
-  if (walletManager) {
-    console.log(`Master Wallet: ${walletManager.getMasterWallet().address}`);
-  }
-  if (depositListener) {
-    console.log('Blockchain integration active');
-  } else {
-    console.log('Blockchain integration disabled');
-  }
+  console.log(`🚀 NXChain API Server running on port ${PORT}`);
+  console.log('📡 Lightweight mode - Blockchain operations in separate workers');
+  console.log('🔗 To start scanner: node workers/depositScanner.js');
+  console.log('🔗 To start sweep worker: node workers/sweepWorker.js');
+  console.log('🌐 API ready for user requests');
 });

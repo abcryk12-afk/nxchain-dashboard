@@ -5,7 +5,11 @@
   "main": "server-enhanced.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server-enhanced.js",
+    "scanner": "node workers/depositScanner.js",
+    "sweep": "node workers/sweepWorker.js",
+    "workers": "concurrently \"npm run scanner\" \"npm run sweep\"",
+    "all": "concurrently \"npm run start\" \"npm run workers\""
   },
   "keywords": [],
   "author": "",
