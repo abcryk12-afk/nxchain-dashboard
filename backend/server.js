@@ -74,8 +74,8 @@ const supportSchema = new mongoose.Schema({
 
 // Referral Schema
 const referralSchema = new mongoose.Schema({
-    referrerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    referredUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    referrer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    referred: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     level: { type: Number, default: 1 },
     commission: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -188,8 +188,8 @@ app.post('/api/register', async (req, res) => {
             const referrer = await User.findOne({ referralCode });
             if (referrer) {
                 const referral = new Referral({
-                    referrerId: referrer._id,
-                    referredUserId: user._id,
+                    referrer: referrer._id,
+                    referred: user._id,
                     level: 1
                 });
                 await referral.save();
@@ -310,8 +310,8 @@ app.get('/api/dashboard', verifyToken, async (req, res) => {
         const activeStakes = await Staking.find({ userId: user._id, isActive: true });
 
         // Get referrals
-        const referrals = await Referral.find({ referrerId: user._id })
-            .populate('referredUserId', 'email createdAt')
+        const referrals = await Referral.find({ referrer: user._id })
+            .populate('referred', 'email createdAt')
             .sort({ createdAt: -1 });
 
         res.json({
@@ -457,13 +457,13 @@ app.get('/api/referral-stats', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
         
-        const referrals = await Referral.find({ referrerId: user._id })
-            .populate('referredUserId', 'email createdAt isVerified')
+        const referrals = await Referral.find({ referrer: user._id })
+            .populate('referred', 'email createdAt isVerified')
             .sort({ createdAt: -1 });
 
         // Calculate statistics
         const totalReferrals = referrals.length;
-        const verifiedReferrals = referrals.filter(r => r.referredUserId.isVerified).length;
+        const verifiedReferrals = referrals.filter(r => r.referred.isVerified).length;
         const totalCommission = referrals.reduce((sum, r) => sum + (r.commission || 0), 0);
 
         res.json({
@@ -473,10 +473,10 @@ app.get('/api/referral-stats', verifyToken, async (req, res) => {
             verifiedReferrals,
             totalCommission,
             referrals: referrals.map(r => ({
-                email: r.referredUserId.email,
-                joinedDate: r.referredUserId.createdAt,
+                email: r.referred.email,
+                joinedDate: r.referred.createdAt,
                 commission: r.commission || 0,
-                status: r.referredUserId.isVerified ? 'Verified' : 'Pending'
+                status: r.referred.isVerified ? 'Verified' : 'Pending'
             }))
         });
     } catch (error) {
