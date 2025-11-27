@@ -599,7 +599,7 @@ export default function UserWalletManagement() {
             </div>
           </CardContent>
         </Card>
-      )
+      )}
     </div>
   );
 };
