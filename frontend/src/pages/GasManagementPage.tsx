@@ -828,6 +828,4 @@ const GasManagementPage: React.FC = () => {
 };
 
 export default GasManagementPage;
-}  
- e x p o r t   d e f a u l t   G a s M a n a g e m e n t P a g e ;  
- 
+} 
