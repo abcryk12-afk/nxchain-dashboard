@@ -4,7 +4,7 @@ import { User } from '../types';
 interface AuthContextType {
   user: User | null;
   login: (user: User, token: string) => void;
-  logout: () => void;
+  logout: (isAdmin?: boolean) => void;
   loading: boolean;
 }
 
@@ -80,11 +80,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('AuthContext - Verification - Token in localStorage:', !!storedToken);
   };
 
-  const logout = () => {
-    console.log('AuthContext - Logout called');
+  const logout = (isAdmin = false) => {
+    console.log('AuthContext - Logout called, isAdmin:', isAdmin);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    
+    // Redirect based on user type
+    if (isAdmin) {
+      window.location.href = '/admin-login';
+    } else {
+      window.location.href = '/login';
+    }
   };
 
   return (

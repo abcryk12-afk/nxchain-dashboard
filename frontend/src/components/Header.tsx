@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   HomeIcon, 
   CurrencyDollarIcon, 
@@ -12,18 +13,16 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
-interface HeaderProps {
-  user?: {
-    email: string;
-    referralCode: string;
-  };
-}
-
-const Header: React.FC<HeaderProps> = ({ user }) => {
+const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
+
+  // Check if user is admin
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.isAdmin;
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -34,8 +33,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logout(false); // Pass false for user logout
   };
 
   const handleProfileClick = () => {
