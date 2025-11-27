@@ -71,13 +71,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
     
+    // Ensure isAdmin is always boolean (never undefined)
+    const sanitizedUserData = {
+      ...userData,
+      isAdmin: userData.isAdmin === true ? true : false,
+    };
+    
     localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(sanitizedUserData));
+    setUser(sanitizedUserData);
     
     console.log('AuthContext - Token stored in localStorage');
     console.log('AuthContext - User stored in localStorage');
     console.log('AuthContext - User state set');
+    console.log('AuthContext - User isAdmin:', sanitizedUserData.isAdmin);
     
     // Verify token was stored
     const storedToken = localStorage.getItem('token');

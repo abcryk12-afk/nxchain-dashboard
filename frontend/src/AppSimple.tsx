@@ -82,35 +82,67 @@ const DashboardWrapper: React.FC = () => {
   return <DashboardHome data={data} />;
 };
 
-// Admin Protected Route
+// Admin Protected Route - Bug-Free Version
 const AdminProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
   
-  if (loading) {
-    return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  
+  // If not logged in
+  if (!user) {
+    return <Navigate to="/admin-login" replace />;
   }
   
-  if (!user || !user.isAdmin) {
-    return <Navigate to="/admin-login" replace />;
+  // If user is NOT admin but trying to access admin page
+  if (!user.isAdmin && location.pathname.startsWith('/admin')) {
+    console.log('🔥 ProtectedRoute - Non-admin trying to access admin page, redirecting to user dashboard');
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  // If admin trying to access admin pages (this is correct)
+  if (user.isAdmin && location.pathname.startsWith('/admin')) {
+    console.log('🔥 ProtectedRoute - Admin accessing admin page, allowing access');
+    return <>{children}</>;
+  }
+  
+  // If admin trying to access non-admin pages
+  if (user.isAdmin && !location.pathname.startsWith('/admin')) {
+    console.log('🔥 ProtectedRoute - Admin trying to access user page, redirecting to admin dashboard');
+    return <Navigate to="/admin" replace />;
   }
   
   return <>{children}</>;
 };
 
-// User Protected Route
+// User Protected Route - Bug-Free Version
 const UserProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
   
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
   
+  // If not logged in
   if (!user) {
     return <Navigate to="/login" replace />;
   }
   
-  if (user.isAdmin) {
+  // If user is admin but trying to access user pages
+  if (user.isAdmin && !location.pathname.startsWith('/admin')) {
+    console.log('🔥 UserProtectedRoute - Admin trying to access user page, redirecting to admin dashboard');
     return <Navigate to="/admin" replace />;
+  }
+  
+  // If user is NOT admin and trying to access user pages (this is correct)
+  if (!user.isAdmin && !location.pathname.startsWith('/admin')) {
+    console.log('🔥 UserProtectedRoute - Regular user accessing user page, allowing access');
+    return <>{children}</>;
+  }
+  
+  // If regular user trying to access admin pages
+  if (!user.isAdmin && location.pathname.startsWith('/admin')) {
+    console.log('🔥 UserProtectedRoute - Regular user trying to access admin page, redirecting to user dashboard');
+    return <Navigate to="/dashboard" replace />;
   }
   
   return <>{children}</>;
