@@ -68,10 +68,16 @@ const LoginPage: React.FC = () => {
       console.log('AuthContext login called, navigating to dashboard...');
       console.log('Token stored in localStorage:', localStorage.getItem('token'));
       
-      // Redirect to dashboard
-      navigate('/dashboard');
+      // Redirect based on user role
+      if (response.user.isAdmin) {
+        console.log('Admin user detected, navigating to admin dashboard...');
+        navigate('/admin');
+      } else {
+        console.log('Regular user detected, navigating to user dashboard...');
+        navigate('/dashboard');
+      }
       
-      console.log('Navigation to dashboard called');
+      console.log('Navigation called');
     } catch (error: any) {
       console.error('Login failed:', error);
       setErrors({ general: error.response?.data?.message || 'Login failed' });
