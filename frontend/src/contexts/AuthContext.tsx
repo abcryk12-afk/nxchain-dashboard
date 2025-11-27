@@ -27,20 +27,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('AuthContext - Checking for existing token/user');
+    console.log('🔥 AuthContext - Checking for existing token/user');
+    console.log('🔥 Current URL:', window.location.pathname);
+    
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
-    console.log('Token found:', !!token);
-    console.log('User data found:', !!userData);
+    console.log('🔥 Token found:', !!token);
+    console.log('🔥 User data found:', !!userData);
 
     if (token && userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        console.log('Parsed user:', parsedUser);
+        console.log('🔥 Parsed user:', parsedUser);
         setUser(parsedUser);
       } catch (error) {
-        console.error('Failed to parse user data:', error);
+        console.error('🔥 Failed to parse user data:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }

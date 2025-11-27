@@ -19,17 +19,22 @@ function AppContent() {
   const { user, loading } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
+  console.log('🔥 AppContent - User:', user);
+  console.log('🔥 AppContent - Loading:', loading);
+  console.log('🔥 AppContent - Current Path:', window.location.pathname);
+
   useEffect(() => {
     if (user) {
+      console.log('🔥 AppContent - User authenticated, fetching dashboard data...');
       // Fetch dashboard data when user is authenticated
       const fetchDashboardData = async () => {
         try {
-          console.log('Fetching dashboard data...');
+          console.log('🔥 Fetching dashboard data...');
           const data = await dashboard.getData();
-          console.log('Dashboard data fetched:', data);
+          console.log('🔥 Dashboard data fetched:', data);
           setDashboardData(data);
         } catch (error) {
-          console.error('Failed to fetch dashboard data:', error);
+          console.error('🔥 Failed to fetch dashboard data:', error);
           // Don't clear token here - let AuthContext handle it
         }
       };
@@ -71,60 +76,147 @@ function AppContent() {
                 <>
                   <Header user={user} />
                   <main className="container mx-auto px-4 py-8">
-                    <Routes>
-                      <Route 
-                        index 
-                        element={
-                          dashboardData ? (
-                            <DashboardHome data={dashboardData} />
-                          ) : (
-                            <div className="text-center py-8">
-                              <p className="text-gray-400">Loading dashboard...</p>
-                            </div>
-                          )
-                        } 
-                      />
-                      <Route 
-                        path="dashboard" 
-                        element={
-                          dashboardData ? (
-                            <DashboardHome data={dashboardData} />
-                          ) : (
-                            <div className="text-center py-8">
-                              <p className="text-gray-400">Loading dashboard...</p>
-                            </div>
-                          )
-                        } 
-                      />
-                      <Route 
-                        path="deposit" 
-                        element={<DepositPage />} 
-                      />
-                      <Route 
-                        path="staking" 
-                        element={<StakingPage />} 
-                      />
-                      <Route 
-                        path="withdrawal" 
-                        element={<WithdrawalPage />} 
-                      />
-                      <Route 
-                        path="profile" 
-                        element={<ProfilePage />} 
-                      />
-                      <Route 
-                        path="support" 
-                        element={<SupportPage />} 
-                      />
-                      <Route 
-                        path="admin" 
-                        element={<AdminPage />} 
-                      />
-                      <Route 
-                        path="admin/system/gas-management" 
-                        element={<GasManagementPage />} 
-                      />
-                    </Routes>
+                    {dashboardData ? (
+                      <DashboardHome data={dashboardData} />
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-400">Loading dashboard...</p>
+                      </div>
+                    )}
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/dashboard" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    {dashboardData ? (
+                      <DashboardHome data={dashboardData} />
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-400">Loading dashboard...</p>
+                      </div>
+                    )}
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/deposit" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <DepositPage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/staking" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <StakingPage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/withdrawal" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <WithdrawalPage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/profile" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <ProfilePage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/support" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <SupportPage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/admin" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <AdminPage />
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/admin/system/gas-management" 
+            element={
+              user ? (
+                <>
+                  <Header user={user} />
+                  <main className="container mx-auto px-4 py-8">
+                    <GasManagementPage />
                   </main>
                 </>
               ) : (
