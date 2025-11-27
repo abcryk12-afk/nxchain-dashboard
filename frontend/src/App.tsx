@@ -305,15 +305,8 @@ function AppContent() {
           />
           */}
 
-          {/* Catch-all redirect to login (except admin-login) */}
-          <Route 
-            path="*" 
-            element={
-              location.pathname === '/admin-login' ? 
-              <AdminLoginPage /> : 
-              <Navigate to="/login" replace state={{ from: location }} />
-            } 
-          />
+          {/* Catch-all redirect to login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </Router>
