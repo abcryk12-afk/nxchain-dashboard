@@ -15,6 +15,39 @@ import SupportPage from './pages/SupportPage';
 import { dashboard } from './services/api';
 import { DashboardData } from './types';
 
+// Admin Public Route - for admin login page
+const AdminPublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  
+  // If admin already logged in, redirect to admin dashboard
+  if (user && user.isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+  
+  // If normal user is logged in, stop them from accessing admin login
+  if (user && !user.isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// User Public Route - for user login/register pages
+const UserPublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  
+  // If any user is logged in, redirect to appropriate dashboard
+  if (user) {
+    if (user.isAdmin) {
+      return <Navigate to="/admin" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+  
+  return <>{children}</>;
+};
+
 // Dashboard Wrapper Component
 const DashboardWrapper: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -89,9 +122,9 @@ function AppSimple() {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin-login" element={<AdminLoginPage />} />
+          <Route path="/login" element={<UserPublicRoute><LoginPage /></UserPublicRoute>} />
+          <Route path="/register" element={<UserPublicRoute><RegisterPage /></UserPublicRoute>} />
+          <Route path="/admin-login" element={<AdminPublicRoute><AdminLoginPage /></AdminPublicRoute>} />
           
           {/* User Protected Routes */}
           <Route path="/" element={
