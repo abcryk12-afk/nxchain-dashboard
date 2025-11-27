@@ -76,7 +76,7 @@ function App() {
 
           {/* Protected Routes */}
           <Route 
-            path="/*" 
+            path="/" 
             element={
               user ? (
                 <>
@@ -84,7 +84,7 @@ function App() {
                   <main className="container mx-auto px-4 py-8">
                     <Routes>
                       <Route 
-                        path="/dashboard" 
+                        index 
                         element={
                           dashboardData ? (
                             <DashboardHome data={dashboardData} />
@@ -96,40 +96,44 @@ function App() {
                         } 
                       />
                       <Route 
-                        path="/deposit" 
+                        path="dashboard" 
+                        element={
+                          dashboardData ? (
+                            <DashboardHome data={dashboardData} />
+                          ) : (
+                            <div className="text-center py-8">
+                              <p className="text-gray-400">Loading dashboard...</p>
+                            </div>
+                          )
+                        } 
+                      />
+                      <Route 
+                        path="deposit" 
                         element={<DepositPage />} 
                       />
                       <Route 
-                        path="/staking" 
+                        path="staking" 
                         element={<StakingPage />} 
                       />
                       <Route 
-                        path="/withdrawal" 
+                        path="withdrawal" 
                         element={<WithdrawalPage />} 
                       />
                       <Route 
-                        path="/profile" 
+                        path="profile" 
                         element={<ProfilePage />} 
                       />
                       <Route 
-                        path="/support" 
+                        path="support" 
                         element={<SupportPage />} 
                       />
                       <Route 
-                        path="/admin" 
+                        path="admin" 
                         element={<AdminPage />} 
                       />
                       <Route 
-                        path="/admin/system/gas-management" 
+                        path="admin/system/gas-management" 
                         element={<GasManagementPage />} 
-                      />
-                      <Route 
-                        path="/" 
-                        element={<Navigate to="/dashboard" replace />} 
-                      />
-                      <Route 
-                        path="*" 
-                        element={<Navigate to="/dashboard" replace />} 
                       />
                     </Routes>
                   </main>
@@ -138,6 +142,12 @@ function App() {
                 <Navigate to="/login" replace />
               )
             } 
+          />
+          
+          {/* Catch-all redirect to login */}
+          <Route 
+            path="*" 
+            element={<Navigate to="/login" replace />} 
           />
         </Routes>
       </div>
