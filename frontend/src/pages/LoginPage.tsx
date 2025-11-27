@@ -69,7 +69,12 @@ const LoginPage: React.FC = () => {
       console.log('Token stored in localStorage:', localStorage.getItem('token'));
       
       // Redirect based on user role
-      if (response.user.isAdmin) {
+      console.log('🔥 Checking user role for redirect...');
+      console.log('🔥 Response user:', response.user);
+      console.log('🔥 isAdmin value:', response.user.isAdmin);
+      console.log('🔥 isAdmin type:', typeof response.user.isAdmin);
+      
+      if (response.user.isAdmin === true) {  // ✅ Strict check for true
         console.log('Admin user detected, navigating to admin dashboard...');
         navigate('/admin');
       } else {

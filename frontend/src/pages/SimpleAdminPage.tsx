@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const SimpleAdminPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();  // ✅ Add logout here
 
   console.log('🔥 SimpleAdminPage - Component loaded');
   console.log('🔥 SimpleAdminPage - User:', user);
@@ -96,8 +96,8 @@ const SimpleAdminPage: React.FC = () => {
           <button 
             className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg"
             onClick={() => {
-              localStorage.removeItem('user');
-              navigate('/admin-login');
+              console.log('🔥 Admin logout clicked');
+              logout(true);  // ✅ Use AuthContext logout with isAdmin=true
             }}
           >
             Logout
