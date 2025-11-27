@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Cog6ToothIcon,
   WalletIcon,
@@ -14,6 +16,29 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+
+const AdminPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user is admin
+  useEffect(() => {
+    if (!user || !user.isAdmin) {
+      console.log('🔥 AdminPage - Not admin, redirecting to admin-login');
+      navigate('/admin-login');
+      return;
+    }
+  }, [user, navigate]);
+
+  if (!user || !user.isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-400">Checking admin privileges...</p>
+        </div>
+      </div>
+    );
+  }
 
 interface AdminData {
   masterWallet: {
