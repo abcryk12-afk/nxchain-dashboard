@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -12,6 +12,42 @@ import StakingPage from './pages/StakingPage';
 import WithdrawalPage from './pages/WithdrawalPage';
 import ProfilePage from './pages/ProfilePage';
 import SupportPage from './pages/SupportPage';
+import { dashboard } from './services/api';
+import { DashboardData } from './types';
+
+// Dashboard Wrapper Component
+const DashboardWrapper: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        if (user) {
+          const dashboardData = await dashboard.getData();
+          setData(dashboardData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
+
+  if (loading) {
+    return <div>Loading dashboard...</div>;
+  }
+
+  if (!data) {
+    return <div>Failed to load dashboard</div>;
+  }
+
+  return <DashboardHome data={data} />;
+};
 
 // Admin Protected Route
 const AdminProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -60,12 +96,12 @@ function AppSimple() {
           {/* User Protected Routes */}
           <Route path="/" element={
             <UserProtectedRoute>
-              <DashboardHome />
+              <DashboardWrapper />
             </UserProtectedRoute>
           } />
           <Route path="/dashboard" element={
             <UserProtectedRoute>
-              <DashboardHome />
+              <DashboardWrapper />
             </UserProtectedRoute>
           } />
           <Route path="/deposit" element={
