@@ -14,7 +14,9 @@ const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    firstName: '',
+    lastName: ''
   });
   const [referralCode, setReferralCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,11 +70,17 @@ const RegisterPage: React.FC = () => {
       const response = await auth.register({
         email: formData.email,
         password: formData.password,
+        firstName: formData.firstName || '',
+        lastName: formData.lastName || '',
         referralCode: referralCode || undefined
       });
       
-      setUserId(response.userId);
-      setStep(2);
+      // Store token and user data
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      // Navigate to dashboard
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Registration failed:', error);
       setErrors({ general: error.response?.data?.message || 'Registration failed' });
@@ -168,6 +176,42 @@ const RegisterPage: React.FC = () => {
                   <p className="text-red-400 text-sm">{errors.general}</p>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  placeholder="Enter your first name"
+                  className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                    errors.firstName ? 'border-red-400' : 'border-white/10'
+                  }`}
+                />
+                {errors.firstName && (
+                  <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  placeholder="Enter your last name"
+                  className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                    errors.lastName ? 'border-red-400' : 'border-white/10'
+                  }`}
+                />
+                {errors.lastName && (
+                  <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">

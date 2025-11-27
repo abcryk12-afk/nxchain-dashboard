@@ -74,6 +74,8 @@ export interface AuthResponse {
 export interface RegisterData {
   email: string;
   password: string;
+  firstName?: string;
+  lastName?: string;
   referralCode?: string;
 }
 
