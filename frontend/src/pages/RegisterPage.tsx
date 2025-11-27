@@ -7,6 +7,7 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { auth } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const refCode = searchParams.get('ref');
@@ -78,13 +80,10 @@ const RegisterPage: React.FC = () => {
       
       console.log('Registration successful:', response);
       
-      // Store token and user data
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Use AuthContext login method
+      login(response.user, response.token);
       
-      console.log('Token stored in localStorage');
-      console.log('User data stored in localStorage');
-      console.log('About to navigate to dashboard...');
+      console.log('AuthContext login called, navigating to dashboard...');
       
       // Navigate to dashboard
       navigate('/dashboard');

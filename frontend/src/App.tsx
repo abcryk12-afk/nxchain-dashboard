@@ -13,26 +13,15 @@ import AdminPage from './pages/AdminPage';
 import GasManagementPage from './pages/GasManagementPage';
 import { dashboard } from './services/api';
 import { DashboardData, User } from './types';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-function App() {
-  const [user, setUser] = useState<User | null>(null);
+function AppContent() {
+  const { user, loading } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('App useEffect - Checking for existing token/user');
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    console.log('Token found:', !!token);
-    console.log('User data found:', !!userData);
-
-    if (token && userData) {
-      const parsedUser = JSON.parse(userData);
-      console.log('Parsed user:', parsedUser);
-      setUser(parsedUser);
-      
-      // Fetch dashboard data
+    if (user) {
+      // Fetch dashboard data when user is authenticated
       const fetchDashboardData = async () => {
         try {
           console.log('Fetching dashboard data...');
@@ -41,21 +30,13 @@ function App() {
           setDashboardData(data);
         } catch (error) {
           console.error('Failed to fetch dashboard data:', error);
-          // Clear invalid token
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-        } finally {
-          setLoading(false);
+          // Don't clear token here - let AuthContext handle it
         }
       };
 
       fetchDashboardData();
-    } else {
-      console.log('No token/user found, setting loading to false');
-      setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
@@ -160,6 +141,14 @@ function App() {
         </Routes>
       </div>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

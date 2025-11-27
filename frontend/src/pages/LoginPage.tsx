@@ -7,6 +7,7 @@ import {
   ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import { auth } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -51,13 +53,10 @@ const LoginPage: React.FC = () => {
       
       console.log('Login successful:', response);
       
-      // Store token and user data
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Use AuthContext login method
+      login(response.user, response.token);
       
-      console.log('Token stored in localStorage');
-      console.log('User data stored in localStorage');
-      console.log('About to navigate to dashboard...');
+      console.log('AuthContext login called, navigating to dashboard...');
       
       // Redirect to dashboard
       navigate('/dashboard');
