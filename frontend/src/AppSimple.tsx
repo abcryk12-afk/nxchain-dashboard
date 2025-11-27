@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import SimpleAdminPage from './pages/SimpleAdminPage';
 
@@ -18,9 +18,6 @@ const SimpleProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childre
   
   return <>{children}</>;
 };
-
-// Import useAuth
-import { useAuth } from './contexts/AuthContext';
 
 function AppSimple() {
   return (
