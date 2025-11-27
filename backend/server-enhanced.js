@@ -7,8 +7,14 @@ const nodemailer = require('nodemailer');
 const qrcode = require('qrcode');
 const crypto = require('crypto');
 
+// Import HD Wallet Service
+const HDWalletService = require('./services/hdwallet');
+
 // Import routes
 const adminRoutes = require('./admin/adminRoutes');
+const walletRoutes = require('./api/wallet');
+const adminApiRoutes = require('./api/admin');
+const adminSetupRoutes = require('./api/adminSetup');
 
 // Import models
 const User = require('./models/User');
@@ -22,9 +28,14 @@ const TempRegistration = require('./models/TempRegistration');
 const GasLog = require('./models/GasLog');
 const AdminAction = require('./models/AdminAction');
 const SystemError = require('./models/SystemError');
+const Wallet = require('./models/Wallet');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Initialize HD Wallet Service
+const hdWalletService = new HDWalletService();
+console.log('🔥 HD Wallet Service initialized with master wallet');
 
 // Middleware
 const corsOptions = {
@@ -127,6 +138,9 @@ setInterval(async () => {
 
 // Routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/admin', adminApiRoutes);
+app.use('/api/admin', adminSetupRoutes);
 
 // Registration with wallet generation - MANDATORY REFERRAL VALIDATION
 app.post('/api/register', async (req, res) => {
@@ -190,6 +204,52 @@ app.post('/api/register', async (req, res) => {
     console.log('🔥 SAVING USER WITH SPONSOR LINKING...');
     await user.save();
     console.log('🔥 USER SAVED SUCCESSFULLY!');
+
+    // Generate HD Wallet for user
+    try {
+      console.log('🔥 GENERATING HD WALLET FOR USER:', user.userId);
+      
+      // Generate multi-network addresses
+      const userAddresses = hdWalletService.getUserAddresses(user.userId);
+      console.log('🔥 GENERATED ADDRESSES:', userAddresses);
+      
+      // Update user with multi-network addresses
+      user.multiNetworkAddresses = {};
+      user.walletGenerated = true;
+      
+      for (const [network, addressData] of Object.entries(userAddresses)) {
+        user.multiNetworkAddresses[network] = {
+          address: addressData.address,
+          privateKeyEncrypted: hdWalletService.encrypt(addressData.privateKey || '', user.userId),
+          publicKey: addressData.publicKey || '',
+          derivationPath: addressData.derivationPath || '',
+          contractAddress: addressData.contractAddress,
+          decimals: addressData.decimals,
+          createdAt: new Date()
+        };
+      }
+      
+      // Create separate wallet record
+      const walletRecord = new Wallet({
+        userId: user.userId,
+        mnemonicEncrypted: hdWalletService.encrypt(hdWalletService.masterMnemonic, user.userId),
+        xpub: hdWalletService.xpub,
+        xprvEncrypted: hdWalletService.encrypt(hdWalletService.xprv, user.userId),
+        addresses: user.multiNetworkAddresses,
+        walletPassword: user.userId, // Use userId as wallet password
+        isActive: true
+      });
+      
+      await walletRecord.save();
+      await user.save();
+      
+      console.log('🔥 HD WALLET GENERATED AND SAVED SUCCESSFULLY!');
+      console.log('🔥 USER ADDRESSES:', userAddresses);
+      
+    } catch (walletError) {
+      console.error('🔥 HD WALLET GENERATION ERROR:', walletError);
+      // Continue even if wallet generation fails - user is already created
+    }
 
     // Create referral record immediately after user save
     try {
