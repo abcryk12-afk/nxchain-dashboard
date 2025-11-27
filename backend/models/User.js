@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const { hashPassword, verifyPassword } = require('../utils/encryption');
+const crypto = require('crypto');
+const { verifyPassword } = require('../utils/encryption');
 
 const userSchema = new mongoose.Schema({
   // Basic user info
@@ -120,14 +121,20 @@ userSchema.virtual('isLocked').get(function() {
 
 // Pre-save middleware for password hashing
 userSchema.pre('save', async function(next) {
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
   
   try {
-    const { salt, hash } = hashPassword(this.password);
+    // Hash password with salt
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(this.password, salt, 10000, 64, 'sha512').toString('hex');
+    
     this.salt = salt;
     this.password = hash;
+    
     next();
   } catch (error) {
+    console.error('Password hashing error:', error);
     next(error);
   }
 });
