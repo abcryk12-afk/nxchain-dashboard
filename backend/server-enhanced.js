@@ -802,6 +802,56 @@ app.get('/api/support', authenticateToken, async (req, res) => {
   }
 });
 
+// DEBUG: Check all referrals in database
+app.get('/api/debug/referrals', authenticateToken, async (req, res) => {
+  try {
+    console.log('🔥 DEBUG: Fetching all referrals...');
+    
+    // Get all users
+    const allUsers = await User.find({});
+    console.log('🔥 DEBUG: Total users:', allUsers.length);
+    
+    // Get all referrals
+    const allReferrals = await Referral.find({})
+      .populate('referrer', 'email userId referralCode')
+      .populate('referred', 'email userId referralCode isVerified');
+    
+    console.log('🔥 DEBUG: Total referrals:', allReferrals.length);
+    
+    // Log each referral details
+    allReferrals.forEach((referral, index) => {
+      console.log(`🔥 DEBUG: Referral ${index + 1}:`, {
+        id: referral._id,
+        referrerEmail: referral.referrer?.email,
+        referrerUserId: referral.referrer?.userId,
+        referrerCode: referral.referrer?.referralCode,
+        referredEmail: referral.referred?.email,
+        referredUserId: referral.referred?.userId,
+        referredCode: referral.referred?.referralCode,
+        referredVerified: referral.referred?.isVerified,
+        referralCode: referral.referralCode,
+        status: referral.status,
+        commission: referral.commission
+      });
+    });
+    
+    res.json({
+      totalUsers: allUsers.length,
+      totalReferrals: allReferrals.length,
+      users: allUsers.map(u => ({
+        email: u.email,
+        userId: u.userId,
+        referralCode: u.referralCode,
+        sponsorId: u.sponsorId
+      })),
+      referrals: allReferrals
+    });
+  } catch (error) {
+    console.error('🔥 DEBUG: Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   try {
