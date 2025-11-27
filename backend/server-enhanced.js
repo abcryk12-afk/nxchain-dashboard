@@ -37,36 +37,32 @@ const corsOptions = {
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Handle pre-flight requests
-app.options('*', cors(corsOptions));
-
-// Additional CORS headers
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nxchain');
 
-// Initialize blockchain components
-const walletManager = new WalletManager();
-const depositListener = new DepositListener();
+// Initialize blockchain components with error handling
+let walletManager, depositListener;
+try {
+  walletManager = new WalletManager();
+  console.log('✅ Wallet Manager initialized successfully');
+} catch (error) {
+  console.error('❌ Failed to initialize Wallet Manager:', error);
+  walletManager = null;
+}
+
+try {
+  depositListener = new DepositListener();
+  console.log('✅ Deposit Listener initialized successfully');
+} catch (error) {
+  console.error('❌ Failed to initialize Deposit Listener:', error);
+  depositListener = null;
+}
 
 // Email Transporter
 const transporter = nodemailer.createTransport({
@@ -671,19 +667,50 @@ app.get('/api/support', authenticateToken, async (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date(),
-    uptime: process.uptime(),
-    blockchain: {
-      depositListener: depositListener.getStatus(),
-      masterWallet: walletManager.getMasterWallet().address
-    }
+  try {
+    const healthData = {
+      status: 'ok',
+      timestamp: new Date(),
+      uptime: process.uptime(),
+      blockchain: {
+        depositListener: depositListener ? depositListener.getStatus() : 'disabled',
+        masterWallet: walletManager ? walletManager.getMasterWallet().address : 'disabled'
+      }
+    };
+    res.json(healthData);
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.json({
+      status: 'degraded',
+      timestamp: new Date(),
+      uptime: process.uptime(),
+      error: error.message
+    });
+  }
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
 });
 
 app.listen(PORT, () => {
   console.log(`NXChain Server running on port ${PORT}`);
-  console.log(`Master Wallet: ${walletManager.getMasterWallet().address}`);
-  console.log('Blockchain integration active');
+  if (walletManager) {
+    console.log(`Master Wallet: ${walletManager.getMasterWallet().address}`);
+  }
+  if (depositListener) {
+    console.log('Blockchain integration active');
+  } else {
+    console.log('Blockchain integration disabled');
+  }
 });
