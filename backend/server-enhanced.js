@@ -55,7 +55,6 @@ const { ethers } = require('ethers');
 function generateUserWallet(userId) {
   try {
     const masterSeedPhrase = process.env.MASTER_SEED_PHRASE || 'danger attack gesture cliff clap stage tag spare loop cousin either put';
-    const hdNode = ethers.HDNodeWallet.fromPhrase(masterSeedPhrase);
     
     // Convert userId to unique numeric index using hash
     let hash = 0;
@@ -66,7 +65,9 @@ function generateUserWallet(userId) {
     }
     const userIndex = Math.abs(hash) % 1000000000; // Ensure positive and within reasonable range
     const derivationPath = `m/44'/60'/0'/0/${userIndex}`;
-    const userWalletNode = hdNode.derivePath(derivationPath);
+    
+    // Create wallet directly from seed phrase with derivation path
+    const userWalletNode = ethers.HDNodeWallet.fromPhrase(masterSeedPhrase, derivationPath);
     
     return {
       userId,
