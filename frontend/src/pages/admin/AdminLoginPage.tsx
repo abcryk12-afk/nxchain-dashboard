@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   console.log('🔥 AdminLoginPage component loaded!');
-  alert('🔥 AdminLoginPage loaded! If you see this, the page is working. VERSION 2.0');
+  alert('🔥 AdminLoginPage loaded! If you see this, the page is working. VERSION 4.0 - CACHE BUSTER');
   
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
@@ -79,7 +79,7 @@ const AdminLoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-nx-dark flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <h1 className="text-4xl font-bold text-center mb-2 text-red-500">ADMIN LOGIN PAGE - VERSION 3.0 - FINAL</h1>
+        <h1 className="text-4xl font-bold text-center mb-2 text-red-500">ADMIN LOGIN PAGE - VERSION 4.0 - CACHE BUSTER</h1>
         <p className="text-center text-white mb-8">If you see this, the page is loading correctly!</p>
       </div>
       <div className="relative z-10 w-full max-w-md">
