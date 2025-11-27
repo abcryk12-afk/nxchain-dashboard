@@ -154,8 +154,8 @@ app.post('/api/register', async (req, res) => {
         
         // Create referral record
         const referral = new Referral({
-          referrerId: referrer.userId,
-          referredId: newUserId,
+          referrer: referrer._id,
+          referred: newUser._id,
           referralCode,
           status: 'active',
           level: 1
@@ -244,8 +244,8 @@ app.post('/api/verify-otp', async (req, res) => {
         
         // Create referral record
         const referral = new Referral({
-          referrerId: referrer.userId,
-          referredId: newUserId,
+          referrer: referrer._id,
+          referred: newUser._id,
           referralCode: referrer.referralCode,
           commission: 0,
           status: 'pending',
@@ -610,8 +610,8 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const referrals = await Referral.find({ referrerId: user.userId })
-      .populate('referredId', 'email createdAt')
+    const referrals = await Referral.find({ referrer: user.userId })
+      .populate('referred', 'email createdAt')
       .sort({ createdAt: -1 });
 
     const referralCode = user.referralCode;
@@ -628,7 +628,7 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
       verifiedReferrals,
       totalCommission,
       referrals: referrals.map(r => ({
-        email: r.referredId?.email || 'Unknown',
+        email: r.referred?.email || 'Unknown',
         joinedDate: r.createdAt,
         commission: r.commission,
         status: r.status
