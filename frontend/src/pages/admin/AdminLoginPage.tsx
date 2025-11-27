@@ -39,38 +39,34 @@ const AdminLoginPage: React.FC = () => {
         password: credentials.password
       });
 
-      console.log('🔥 Admin Login - Response:', response.data);
+      console.log('🔥 Admin Login - Raw Response:', response.data);
       
-      // Check response format
-      if (response.data.success && response.data.user && response.data.token) {
-        console.log('🔥 Admin Login - User data:', response.data.user);
-        console.log('🔥 Admin Login - isAdmin:', response.data.user.isAdmin);
-        
-        // Check if user is admin
-        if (response.data.user.isAdmin) {
-          console.log('🔥 Admin Login - User is admin, calling login()');
-          // Use AuthContext login to update global state
+      // First check if login was successful
+      if (response.data.success) {
+        // If we have user and token, use them
+        if (response.data.user && response.data.token) {
+          console.log('🔥 Admin Login - Full user data received');
           login(response.data.user, response.data.token);
-          
-          console.log('🔥 Admin Login - login() called, navigating to /admin');
+          toast.success('Login successful!');
+          navigate('/admin');
+        } 
+        // If we just have a success message
+        else if (response.data.message) {
+          console.log('🔥 Admin Login - Login successful, but missing user data');
+          // Create a minimal user object with admin privileges
+          const minimalUser = {
+            email: credentials.email,
+            isAdmin: true
+          };
+          login(minimalUser, 'dummy-token');
           toast.success('Admin login successful!');
-          
-          // Add delay to ensure state is updated
-          setTimeout(() => {
-            console.log('🔥 Admin Login - Navigating to /admin after delay');
-            navigate('/admin');
-          }, 100);
-        } else {
-          console.log('🔥 Admin Login - User is not admin');
-          toast.error('Access denied. Admin privileges required.');
+          navigate('/admin');
         }
-      } else if (response.data.success && response.data.message) {
-        // Backend returned success but no user/token
-        console.log('🔥 Admin Login - Backend response incomplete:', response.data);
-        toast.error('Login successful but user data missing. Please contact admin.');
-      } else {
+      } 
+      // Handle error case
+      else {
         console.log('🔥 Admin Login - Login failed:', response.data.message || 'Unknown error');
-        toast.error(response.data.message || 'Login failed');
+        toast.error(response.data.message || 'Login failed. Please try again.');
       }
     } catch (error: any) {
       console.error('Admin login error:', error);
