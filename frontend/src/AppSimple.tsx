@@ -194,6 +194,11 @@ function AppSimple() {
               <SupportPage />
             </UserProtectedRoute>
           } />
+          <Route path="/settings" element={
+            <UserProtectedRoute>
+              <DashboardWrapper />
+            </UserProtectedRoute>
+          } />
           
           {/* Admin Protected Routes */}
           <Route path="/admin" element={
