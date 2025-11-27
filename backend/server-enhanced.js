@@ -673,26 +673,47 @@ app.post('/api/withdraw', authenticateToken, async (req, res) => {
   }
 });
 
-// Referral stats endpoint - SPONSOR-BASED SYSTEM
+// Referral stats endpoint - COMPREHENSIVE DEBUGGING
 app.get('/api/referral-stats', authenticateToken, async (req, res) => {
   try {
     console.log('🔥 REFERRAL STATS REQUEST FOR USER:', req.user.userId);
     
     const user = await User.findOne({ userId: req.user.userId });
     if (!user) {
+      console.log('🔥 USER NOT FOUND:', req.user.userId);
       return res.status(404).json({ message: 'User not found' });
     }
 
     console.log('🔥 USER FOUND:', user.email);
+    console.log('🔥 USER MONGODB _ID:', user._id);
     console.log('🔥 USER REFERRAL CODE:', user.referralCode);
     console.log('🔥 USER SPONSOR ID:', user.sponsorId);
+
+    // DEBUG: Check all referrals in database
+    const allReferrals = await Referral.find({});
+    console.log('🔥 TOTAL REFERRALS IN DATABASE:', allReferrals.length);
+    
+    // DEBUG: Check if user is a referrer in any referral
+    const userAsReferrer = await Referral.find({ referrer: user._id });
+    console.log('🔥 REFERRALS WHERE USER IS REFERRER:', userAsReferrer.length);
+    
+    // DEBUG: Check referral details
+    userAsReferrer.forEach((referral, index) => {
+      console.log(`🔥 REFERRAL ${index + 1}:`, {
+        id: referral._id,
+        referrer: referral.referrer,
+        referred: referral.referred,
+        referralCode: referral.referralCode,
+        status: referral.status
+      });
+    });
 
     // Find referrals where this user is the referrer (using MongoDB _id)
     const referrals = await Referral.find({ referrer: user._id })
       .populate('referred', 'email createdAt isVerified')
       .sort({ createdAt: -1 });
 
-    console.log('🔥 REFERRALS FOUND:', referrals.length);
+    console.log('🔥 FINAL REFERRALS FOUND:', referrals.length);
 
     const referralCode = user.referralCode;
     const referralLink = `https://nxchain-frontend.onrender.com/register?ref=${referralCode}`;
@@ -707,10 +728,11 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
       totalCommission
     });
 
-    res.json({
+    // DEBUG: Log final response data
+    const responseData = {
       referralCode,
       referralLink,
-      sponsorId: user.sponsorId, // Include sponsor info
+      sponsorId: user.sponsorId,
       totalReferrals,
       verifiedReferrals,
       totalCommission,
@@ -720,7 +742,11 @@ app.get('/api/referral-stats', authenticateToken, async (req, res) => {
         commission: r.commission || 0,
         status: r.referred?.isVerified ? 'Verified' : 'Pending'
       }))
-    });
+    };
+    
+    console.log('🔥 SENDING RESPONSE:', responseData);
+
+    res.json(responseData);
   } catch (error) {
     console.error('🔥 REFERRAL STATS ERROR:', error);
     console.error('🔥 ERROR STACK:', error.stack);

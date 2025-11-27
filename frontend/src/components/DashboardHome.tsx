@@ -26,10 +26,12 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data }) => {
   useEffect(() => {
     const fetchReferralStats = async () => {
       try {
+        console.log('🔥 FRONTEND: Fetching referral stats...');
         const stats = await referral.getStats();
+        console.log('🔥 FRONTEND: Referral stats received:', stats);
         setReferralStats(stats);
       } catch (error) {
-        console.error('Failed to fetch referral stats:', error);
+        console.error('🔥 FRONTEND: Failed to fetch referral stats:', error);
       }
     };
 
