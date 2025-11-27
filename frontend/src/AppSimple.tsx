@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import SimpleAdminPage from './pages/SimpleAdminPage';
@@ -14,6 +14,12 @@ import ProfilePage from './pages/ProfilePage';
 import SupportPage from './pages/SupportPage';
 import { dashboard } from './services/api';
 import { DashboardData } from './types';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import WalletManagementPage from './pages/admin/WalletManagementPage';
+import TransactionsPage from './pages/admin/TransactionsPage';
+import GasManagementPage from './pages/admin/GasManagementPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import { UserProtectedRoute, AdminProtectedRoute } from './components/ProtectedRoute';
 
 // Admin Public Route - for admin login page
 const AdminPublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -82,72 +88,6 @@ const DashboardWrapper: React.FC = () => {
   return <DashboardHome data={data} />;
 };
 
-// Admin Protected Route - Bug-Free Version
-const AdminProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
-  
-  if (loading) return <div>Loading...</div>;
-  
-  // If not logged in
-  if (!user) {
-    return <Navigate to="/admin-login" replace />;
-  }
-  
-  // If user is NOT admin but trying to access admin page
-  if (!user.isAdmin && location.pathname.startsWith('/admin')) {
-    console.log('🔥 ProtectedRoute - Non-admin trying to access admin page, redirecting to user dashboard');
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  // If admin trying to access admin pages (this is correct)
-  if (user.isAdmin && location.pathname.startsWith('/admin')) {
-    console.log('🔥 ProtectedRoute - Admin accessing admin page, allowing access');
-    return <>{children}</>;
-  }
-  
-  // If admin trying to access non-admin pages
-  if (user.isAdmin && !location.pathname.startsWith('/admin')) {
-    console.log('🔥 ProtectedRoute - Admin trying to access user page, redirecting to admin dashboard');
-    return <Navigate to="/admin" replace />;
-  }
-  
-  return <>{children}</>;
-};
-
-// User Protected Route - Bug-Free Version
-const UserProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
-  
-  if (loading) return <div>Loading...</div>;
-  
-  // If not logged in
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  // If user is admin but trying to access user pages
-  if (user.isAdmin && !location.pathname.startsWith('/admin')) {
-    console.log('🔥 UserProtectedRoute - Admin trying to access user page, redirecting to admin dashboard');
-    return <Navigate to="/admin" replace />;
-  }
-  
-  // If user is NOT admin and trying to access user pages (this is correct)
-  if (!user.isAdmin && !location.pathname.startsWith('/admin')) {
-    console.log('🔥 UserProtectedRoute - Regular user accessing user page, allowing access');
-    return <>{children}</>;
-  }
-  
-  // If regular user trying to access admin pages
-  if (!user.isAdmin && location.pathname.startsWith('/admin')) {
-    console.log('🔥 UserProtectedRoute - Regular user trying to access admin page, redirecting to user dashboard');
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return <>{children}</>;
-};
-
 function AppSimple() {
   return (
     <AuthProvider>
@@ -207,30 +147,30 @@ function AppSimple() {
             </AdminProtectedRoute>
           } />
           
-          {/* Admin Sub-Routes - All redirect to main admin dashboard for now */}
+          {/* Admin Sub-Routes - Now pointing to actual pages */}
           <Route path="/admin/users" element={
             <AdminProtectedRoute>
-              <SimpleAdminPage />
+              <UserManagementPage />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/wallet-management" element={
             <AdminProtectedRoute>
-              <SimpleAdminPage />
+              <WalletManagementPage />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/transactions" element={
             <AdminProtectedRoute>
-              <SimpleAdminPage />
+              <TransactionsPage />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/system/gas-management" element={
             <AdminProtectedRoute>
-              <SimpleAdminPage />
+              <GasManagementPage />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/settings" element={
             <AdminProtectedRoute>
-              <SimpleAdminPage />
+              <AdminSettingsPage />
             </AdminProtectedRoute>
           } />
           
