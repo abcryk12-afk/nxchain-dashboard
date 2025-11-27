@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const gasLogSchema = new mongoose.Schema({
   // Wallet information
   walletAddress: { type: String, required: true, index: true },
-  userId: { type: String, required: true, index: true },
+  userId: { type: String, required: true },
   
   // Transaction details
   amount: { type: Number, required: true },

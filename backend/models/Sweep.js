@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const sweepSchema = new mongoose.Schema({
   // User reference
-  userId: { type: String, required: true, index: true },
+  userId: { type: String, required: true },
   
   // Transaction details
   txHash: { type: String, required: true, unique: true, index: true },

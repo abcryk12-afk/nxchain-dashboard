@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema({
   
   // Referral info
   referralCode: { type: String, required: true, unique: true, index: true },
-  sponsorId: { type: String, default: null, index: true }, // Sponsor's userId
+  sponsorId: { type: String, default: null }, // Sponsor's userId
   referredBy: { type: String, default: null }, // Legacy field - keeping for compatibility
   
   // Earnings
