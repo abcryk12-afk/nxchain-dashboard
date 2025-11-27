@@ -77,9 +77,11 @@ const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      
+    <div className="min-h-screen bg-nx-dark flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-4xl font-bold text-center mb-2 text-red-500">ADMIN LOGIN PAGE - VERSION 2.0</h1>
+        <p className="text-center text-white mb-8">If you see this, the page is loading correctly!</p>
+      </div>
       <div className="relative z-10 w-full max-w-md">
         <Card className="border-gray-700 bg-gray-800/90 backdrop-blur-sm shadow-2xl">
           <CardHeader className="text-center pb-4">
