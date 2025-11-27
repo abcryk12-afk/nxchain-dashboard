@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { Search, Copy, Wallet, User, Calendar, Phone, Globe, QrCode, Eye, EyeOff, Loader2, Check, Key, Shield, Database } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -9,8 +11,32 @@ import { Badge } from '../../components/ui/badge';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { toast } from 'sonner';
+import AdminLayout from '../../components/admin/AdminLayout';
 
-// Types
+const UserWalletManagement: React.FC = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user is admin
+  useEffect(() => {
+    if (!user || !user.isAdmin) {
+      console.log('🔥 UserWalletManagement - Not admin, redirecting to admin-login');
+      navigate('/admin-login');
+      return;
+    }
+  }, [user, navigate]);
+
+  if (!user || !user.isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-400">Checking admin privileges...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Types
 interface UserDetails {
   userId: string;
   email: string;
@@ -573,7 +599,18 @@ export default function UserWalletManagement() {
             </div>
           </CardContent>
         </Card>
-      )}
+      )
     </div>
   );
-}
+};
+
+// Wrap with AdminLayout
+const UserWalletManagementWithLayout: React.FC = () => {
+  return (
+    <AdminLayout title="Wallet Management">
+      <UserWalletManagement />
+    </AdminLayout>
+  );
+};
+
+export default UserWalletManagementWithLayout;
