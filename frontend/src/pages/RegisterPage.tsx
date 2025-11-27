@@ -78,12 +78,22 @@ const RegisterPage: React.FC = () => {
         referralCode: referralCode || undefined
       });
       
-      console.log('Registration successful:', response);
+      console.log('Registration successful - Full response:', response);
+      console.log('Response token:', response.token);
+      console.log('Response user:', response.user);
+      
+      // Check if token exists in response
+      if (!response.token) {
+        console.error('No token in response!');
+        setErrors({ general: 'Registration failed: No token received' });
+        return;
+      }
       
       // Use AuthContext login method
       login(response.user, response.token);
       
       console.log('AuthContext login called, navigating to dashboard...');
+      console.log('Token stored in localStorage:', localStorage.getItem('token'));
       
       // Navigate to dashboard
       navigate('/dashboard');

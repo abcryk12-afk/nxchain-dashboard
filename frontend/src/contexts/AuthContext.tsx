@@ -50,9 +50,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (userData: User, token: string) => {
     console.log('AuthContext - Login called with:', userData);
+    console.log('AuthContext - Token received:', token);
+    
+    // Validate token before storing
+    if (!token || typeof token !== 'string') {
+      console.error('AuthContext - Invalid token received!');
+      return;
+    }
+    
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    
+    console.log('AuthContext - Token stored in localStorage');
+    console.log('AuthContext - User stored in localStorage');
+    console.log('AuthContext - User state set');
+    
+    // Verify token was stored
+    const storedToken = localStorage.getItem('token');
+    console.log('AuthContext - Verification - Token in localStorage:', !!storedToken);
   };
 
   const logout = () => {

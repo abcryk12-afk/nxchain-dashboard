@@ -51,12 +51,22 @@ const LoginPage: React.FC = () => {
       console.log('Sending login request...');
       const response = await auth.login(formData);
       
-      console.log('Login successful:', response);
+      console.log('Login successful - Full response:', response);
+      console.log('Response token:', response.token);
+      console.log('Response user:', response.user);
+      
+      // Check if token exists in response
+      if (!response.token) {
+        console.error('No token in response!');
+        setErrors({ general: 'Login failed: No token received' });
+        return;
+      }
       
       // Use AuthContext login method
       login(response.user, response.token);
       
       console.log('AuthContext login called, navigating to dashboard...');
+      console.log('Token stored in localStorage:', localStorage.getItem('token'));
       
       // Redirect to dashboard
       navigate('/dashboard');
