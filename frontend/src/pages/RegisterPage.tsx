@@ -56,13 +56,18 @@ const RegisterPage: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Registration form submitted');
+    console.log('Form data:', formData);
+    console.log('Referral code:', referralCode);
     
     if (!validateForm()) {
+      console.log('Form validation failed');
       return;
     }
 
     setLoading(true);
     try {
+      console.log('Sending registration request...');
       const response = await auth.register({
         email: formData.email,
         password: formData.password,
@@ -70,6 +75,8 @@ const RegisterPage: React.FC = () => {
         lastName: formData.lastName || '',
         referralCode: referralCode || undefined
       });
+      
+      console.log('Registration successful:', response);
       
       // Store token and user data
       localStorage.setItem('token', response.token);

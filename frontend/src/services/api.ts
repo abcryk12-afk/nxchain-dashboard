@@ -33,8 +33,15 @@ api.interceptors.request.use((config) => {
 // Auth endpoints
 export const auth = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await api.post('/register', data);
-    return response.data;
+    console.log('API: Register request:', data);
+    try {
+      const response = await api.post('/register', data);
+      console.log('API: Register response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Register error:', error);
+      throw error;
+    }
   },
 
   verifyOTP: async (userId: string, otp: string): Promise<AuthResponse> => {
@@ -43,8 +50,15 @@ export const auth = {
   },
 
   login: async (data: LoginData): Promise<AuthResponse> => {
-    const response = await api.post('/login', data);
-    return response.data;
+    console.log('API: Login request:', data);
+    try {
+      const response = await api.post('/login', data);
+      console.log('API: Login response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Login error:', error);
+      throw error;
+    }
   },
 };
 

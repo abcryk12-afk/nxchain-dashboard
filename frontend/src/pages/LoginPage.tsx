@@ -36,14 +36,20 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login form submitted');
+    console.log('Form data:', formData);
     
     if (!validateForm()) {
+      console.log('Form validation failed');
       return;
     }
 
     setLoading(true);
     try {
+      console.log('Sending login request...');
       const response = await auth.login(formData);
+      
+      console.log('Login successful:', response);
       
       // Store token and user data
       localStorage.setItem('token', response.token);
