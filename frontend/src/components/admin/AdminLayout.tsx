@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -24,6 +24,17 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if user is admin
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!user.isAdmin) {
+    // Redirect to admin login if not admin
+    React.useEffect(() => {
+      navigate('/admin-login');
+    }, [navigate]);
+    return null;
+  }
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -37,7 +48,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    window.location.href = '/admin-login';
   };
 
   return (
