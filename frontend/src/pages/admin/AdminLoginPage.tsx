@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   console.log('🔥 AdminLoginPage component loaded!');
-  alert('🔥 AdminLoginPage loaded! VERSION 5.0 - FINAL TEST! If you see this, the page is working!');
+  alert('🔥 AdminLoginPage loaded! VERSION 6.0 - RENDER COUNT TEST! If you see this more than once, something is wrong!');
   
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
