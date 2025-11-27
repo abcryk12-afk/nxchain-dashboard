@@ -13,6 +13,7 @@ import SupportPage from './pages/SupportPage';
 // import GasManagementPage from './pages/GasManagementPage';
 // import UserWalletManagement from './pages/admin/UserWalletManagement';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
+import SimpleAdminPage from './pages/SimpleAdminPage';
 import AdminOnlyLayout from './components/AdminOnlyLayout';
 import { dashboard } from './services/api';
 import { DashboardData, User } from './types';
@@ -233,6 +234,16 @@ function AppContent() {
                 <PageLayout>
                   <SupportPage />
                 </PageLayout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Admin Dashboard Route */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <SimpleAdminPage />
               </ProtectedRoute>
             } 
           />

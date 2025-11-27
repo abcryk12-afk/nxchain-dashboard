@@ -40,7 +40,7 @@ const AdminLoginPage: React.FC = () => {
           localStorage.setItem('user', JSON.stringify(response.data.user));
           
           toast.success('Admin login successful!');
-          navigate('/admin/wallet-management');
+          navigate('/admin');
         } else {
           toast.error('Access denied. Admin privileges required.');
         }
