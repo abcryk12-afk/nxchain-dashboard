@@ -4,8 +4,7 @@ import {
   UserPlusIcon,
   EnvelopeIcon,
   LockClosedIcon,
-  CheckCircleIcon,
-  ArrowRightIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { auth } from '../services/api';
 
@@ -86,8 +85,6 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  // OTP functions removed - backend now handles direct registration
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -121,273 +118,168 @@ const RegisterPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 First Name
               </label>
-                <input
-                  type="text"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  placeholder="Enter your first name"
-                  className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
-                    errors.firstName ? 'border-red-400' : 'border-white/10'
-                  }`}
-                />
-                {errors.firstName && (
-                  <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  placeholder="Enter your last name"
-                  className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
-                    errors.lastName ? 'border-red-400' : 'border-white/10'
-                  }`}
-                />
-                {errors.lastName && (
-                  <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <EnvelopeIcon className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter your email"
-                    className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
-                      errors.email ? 'border-red-400' : 'border-white/10'
-                    }`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-red-400 text-xs mt-1">{errors.email}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LockClosedIcon className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="Create a password"
-                    className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
-                      errors.password ? 'border-red-400' : 'border-white/10'
-                    }`}
-                  />
-                </div>
-                {errors.password && (
-                  <p className="text-red-400 text-xs mt-1">{errors.password}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LockClosedIcon className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="Confirm your password"
-                    className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
-                      errors.confirmPassword ? 'border-red-400' : 'border-white/10'
-                    }`}
-                  />
-                </div>
-                {errors.confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Referral Code (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value)}
-                  placeholder="Enter referral code"
-                  className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent font-mono text-sm"
-                  readOnly={!!searchParams.get('ref')}
-                />
-                {searchParams.get('ref') && (
-                  <p className="text-xs text-green-400 mt-1">
-                    Referral code auto-filled from invitation link
-                  </p>
-                )}
-              </div>
-
-              <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-blue-400 font-medium text-sm">Benefits of Joining</p>
-                    <ul className="text-gray-300 text-sm mt-1 space-y-1">
-                      <li>• Earn daily rewards from staking</li>
-                      <li>• 10% referral commission</li>
-                      <li>• Secure and transparent platform</li>
-                      <li>• 24/7 customer support</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-primary py-3 rounded-lg font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span>Creating account...</span>
-                ) : (
-                  <>
-                    <UserPlusIcon className="w-5 h-5" />
-                    <span>Create Account</span>
-                  </>
-                )}
-              </button>
-
-              <div className="text-center">
-                <p className="text-gray-400 text-sm">
-                  Already have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    className="text-nx-blue hover:text-nx-purple transition-colors"
-                  >
-                    Sign In
-                  </button>
-                </p>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* OTP Verification */}
-        {step === 2 && (
-          <div className="glass-effect rounded-xl p-8">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <EnvelopeIcon className="w-8 h-8 text-green-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-white mb-2">Verify Your Email</h1>
-              <p className="text-gray-400">
-                We've sent a 6-digit code to {formData.email}
-              </p>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                placeholder="Enter your first name"
+                className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                  errors.firstName ? 'border-red-400' : 'border-white/10'
+                }`}
+              />
+              {errors.firstName && (
+                <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>
+              )}
             </div>
 
-            <div className="space-y-6">
-              {errors.otp && (
-                <div className="bg-red-400/10 border border-red-400/20 rounded-lg p-3">
-                  <p className="text-red-400 text-sm">{errors.otp}</p>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                placeholder="Enter your last name"
+                className={`w-full px-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                  errors.lastName ? 'border-red-400' : 'border-white/10'
+                }`}
+              />
+              {errors.lastName && (
+                <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>
               )}
+            </div>
 
-              {errors.general && (
-                <div className="bg-green-400/10 border border-green-400/20 rounded-lg p-3">
-                  <p className="text-green-400 text-sm">{errors.general}</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <EnvelopeIcon className="w-5 h-5 text-gray-400" />
                 </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-4 text-center">
-                  Enter Verification Code
-                </label>
-                <div className="flex justify-center space-x-2">
-                  {otp.map((digit, index) => (
-                    <input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      value={digit}
-                      onChange={(e) => handleOTPChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOTPKeyDown(index, e)}
-                      maxLength={1}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-lg text-white text-center text-xl font-mono focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent"
-                    />
-                  ))}
-                </div>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Enter your email"
+                  className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                    errors.email ? 'border-red-400' : 'border-white/10'
+                  }`}
+                />
               </div>
+              {errors.email && (
+                <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+              )}
+            </div>
 
-              <button
-                onClick={handleVerifyOTP}
-                disabled={loading || otp.join('').length !== 6}
-                className="w-full btn-primary py-3 rounded-lg font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span>Verifying...</span>
-                ) : (
-                  <>
-                    <CheckCircleIcon className="w-5 h-5" />
-                    <span>Verify Email</span>
-                  </>
-                )}
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <LockClosedIcon className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Create a password"
+                  className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                    errors.password ? 'border-red-400' : 'border-white/10'
+                  }`}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+              )}
+            </div>
 
-              <div className="text-center">
-                <p className="text-gray-400 text-sm mb-2">
-                  Didn't receive the code?
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <LockClosedIcon className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="Confirm your password"
+                  className={`w-full pl-10 pr-3 py-3 bg-white/5 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent ${
+                    errors.confirmPassword ? 'border-red-400' : 'border-white/10'
+                  }`}
+                />
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Referral Code (Optional)
+              </label>
+              <input
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                placeholder="Enter referral code"
+                className="w-full px-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent font-mono text-sm"
+                readOnly={!!searchParams.get('ref')}
+              />
+              {searchParams.get('ref') && (
+                <p className="text-xs text-green-400 mt-1">
+                  Referral code auto-filled from invitation link
                 </p>
-                <button
-                  onClick={handleResendOTP}
-                  disabled={loading}
-                  className="text-nx-blue hover:text-nx-purple transition-colors text-sm disabled:opacity-50"
-                >
-                  Resend Code
-                </button>
-              </div>
+              )}
+            </div>
 
-              <div className="text-center">
-                <button
-                  onClick={() => {
-                    setStep(1);
-                    setOtp(['', '', '', '', '', '']);
-                    setErrors({});
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Back to Registration
-                </button>
+            <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <CheckCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-blue-400 font-medium text-sm">Benefits of Joining</p>
+                  <ul className="text-gray-300 text-sm mt-1 space-y-1">
+                    <li>• Earn daily rewards from staking</li>
+                    <li>• 10% referral commission</li>
+                    <li>• Secure and transparent platform</li>
+                    <li>• 24/7 customer support</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Terms */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary py-3 rounded-lg font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span>Creating account...</span>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <UserPlusIcon className="w-5 h-5" />
+                  <span>Create Account</span>
+                </div>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Login Link */}
         <div className="text-center mt-6">
-          <p className="text-gray-500 text-xs">
-            By creating an account, you agree to our{' '}
-            <a href="#" className="text-nx-blue hover:text-nx-purple transition-colors">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="text-nx-blue hover:text-nx-purple transition-colors">
-              Privacy Policy
-            </a>
+          <p className="text-gray-400 text-sm">
+            Already have an account?{' '}
+            <button
+              onClick={() => navigate('/login')}
+              className="text-nx-blue hover:text-nx-purple transition-colors"
+            >
+              Sign In
+            </button>
           </p>
         </div>
       </div>
