@@ -545,24 +545,75 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-// Deposit endpoint with blockchain integration
+// Deposit endpoint with blockchain integration - MULTI-NETWORK SUPPORT
 app.post('/api/deposit', authenticateToken, async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, network = 'bnb' } = req.body;
     const user = await User.findOne({ userId: req.user.userId });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const depositAddress = user.address;
-    const qrCodeData = `bnb:${depositAddress}?amount=${amount}`;
+    // Network configurations
+    const networks = {
+      bnb: {
+        name: 'Binance Smart Chain (BEP-20)',
+        token: 'USDT',
+        prefix: 'bnb',
+        minimumDeposit: 10,
+        address: user.address
+      },
+      eth: {
+        name: 'Ethereum (ERC-20)',
+        token: 'USDT',
+        prefix: 'ethereum',
+        minimumDeposit: 25,
+        address: user.address // Same address for now (multi-chain wallet)
+      },
+      tron: {
+        name: 'TRON (TRC-20)',
+        token: 'USDT',
+        prefix: 'tron',
+        minimumDeposit: 5,
+        address: user.address // Same address for now
+      },
+      polygon: {
+        name: 'Polygon (MATIC)',
+        token: 'USDT',
+        prefix: 'polygon',
+        minimumDeposit: 10,
+        address: user.address // Same address for now
+      }
+    };
+
+    const selectedNetwork = networks[network];
+    if (!selectedNetwork) {
+      return res.status(400).json({ message: 'Invalid network selected' });
+    }
+
+    if (amount < selectedNetwork.minimumDeposit) {
+      return res.status(400).json({ 
+        message: `Minimum deposit is $${selectedNetwork.minimumDeposit} USDT for ${selectedNetwork.name}` 
+      });
+    }
+
+    const depositAddress = selectedNetwork.address;
+    const qrCodeData = `${selectedNetwork.prefix}:${depositAddress}?amount=${amount}`;
     const qrCode = await qrcode.toDataURL(qrCodeData);
+
+    console.log(`🔥 DEPOSIT REQUEST: ${amount} USDT on ${selectedNetwork.name}`);
+    console.log(`🔥 DEPOSIT ADDRESS: ${depositAddress}`);
+    console.log(`🔥 USER: ${user.email}`);
 
     res.json({
       depositAddress,
       qrCode,
-      minimumDeposit: 10
+      network: selectedNetwork,
+      minimumDeposit: selectedNetwork.minimumDeposit,
+      estimatedTime: network === 'tron' ? '1-5 minutes' : 
+                     network === 'bnb' ? '5-30 minutes' :
+                     network === 'polygon' ? '2-10 minutes' : '15-60 minutes'
     });
   } catch (error) {
     console.error('Deposit error:', error);

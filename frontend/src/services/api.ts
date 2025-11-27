@@ -72,7 +72,13 @@ export const dashboard = {
 
 // Deposit endpoints
 export const deposit = {
-  create: async (data: DepositData): Promise<{ depositAddress: string; qrCode: string; minimumDeposit: number }> => {
+  create: async (data: { amount: number; network?: string }): Promise<{ 
+    depositAddress: string; 
+    qrCode: string; 
+    network: any;
+    minimumDeposit: number;
+    estimatedTime: string;
+  }> => {
     const response = await api.post('/deposit', data);
     return response.data;
   },

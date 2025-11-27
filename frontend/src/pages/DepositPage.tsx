@@ -5,37 +5,85 @@ import {
   ClipboardDocumentIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  ClockIcon
+  ClockIcon,
+  BanknotesIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { deposit } from '../services/api';
 import { Transaction } from '../types';
 
 const DepositPage: React.FC = () => {
   const [amount, setAmount] = useState('');
+  const [selectedNetwork, setSelectedNetwork] = useState('bnb');
   const [depositData, setDepositData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [depositHistory, setDepositHistory] = useState<Transaction[]>([]);
 
+  // Network configurations
+  const networks = [
+    {
+      id: 'bnb',
+      name: 'Binance Smart Chain (BEP-20)',
+      token: 'USDT',
+      icon: '',
+      description: 'Fast and low fees',
+      minimumDeposit: 10,
+      estimatedTime: '5-30 minutes'
+    },
+    {
+      id: 'eth',
+      name: 'Ethereum (ERC-20)',
+      token: 'USDT',
+      icon: '',
+      description: 'Universal network',
+      minimumDeposit: 25,
+      estimatedTime: '15-60 minutes'
+    },
+    {
+      id: 'tron',
+      name: 'TRON (TRC-20)',
+      token: 'USDT',
+      icon: '',
+      description: 'No gas fees',
+      minimumDeposit: 5,
+      estimatedTime: '1-5 minutes'
+    },
+    {
+      id: 'polygon',
+      name: 'Polygon (MATIC)',
+      token: 'USDT',
+      icon: '',
+      description: 'Very low fees',
+      minimumDeposit: 10,
+      estimatedTime: '2-10 minutes'
+    }
+  ];
+
+  const selectedNetworkConfig = networks.find(n => n.id === selectedNetwork);
+
   const handleGenerateDeposit = async () => {
-    if (!amount || parseFloat(amount) < 10) {
-      alert('Minimum deposit amount is $10');
+    if (!amount || parseFloat(amount) < (selectedNetworkConfig?.minimumDeposit || 10)) {
+      alert(`Minimum deposit is $${selectedNetworkConfig?.minimumDeposit || 10} USDT`);
       return;
     }
 
     setLoading(true);
     try {
-      const data = await deposit.create({ amount: parseFloat(amount) });
+      const data = await deposit.create({ 
+        amount: parseFloat(amount),
+        network: selectedNetwork 
+      });
       setDepositData(data);
       
-      // Add to mock deposit history (in real app, this would come from backend)
+      // Add to mock deposit history
       const newTransaction: Transaction = {
         _id: Date.now().toString(),
         userId: '',
         type: 'deposit',
         amount: parseFloat(amount),
         status: 'pending',
-        description: `USDT deposit - ${parseFloat(amount)} USDT`,
+        description: `USDT deposit - ${parseFloat(amount)} USDT on ${selectedNetworkConfig?.name}`,
         createdAt: new Date().toISOString()
       };
       setDepositHistory([newTransaction, ...depositHistory]);
@@ -69,8 +117,47 @@ const DepositPage: React.FC = () => {
       <div className="glass-effect rounded-xl p-6">
         <h1 className="text-2xl font-bold gradient-text mb-2">Deposit Funds</h1>
         <p className="text-gray-400">
-          Deposit USDT (BEP-20) to your NXChain wallet
+          Deposit USDT to your NXChain wallet - Multiple networks supported
         </p>
+      </div>
+
+      {/* Network Selection */}
+      <div className="glass-effect rounded-xl p-6">
+        <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+          <BanknotesIcon className="w-6 h-6 mr-2 text-nx-blue" />
+          Select Network
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {networks.map((network) => (
+            <div
+              key={network.id}
+              onClick={() => setSelectedNetwork(network.id)}
+              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                selectedNetwork === network.id
+                  ? 'border-nx-blue bg-nx-blue/10'
+                  : 'border-white/10 hover:border-white/20 bg-white/5'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{network.icon}</span>
+                  <div>
+                    <h3 className="text-white font-medium">{network.name}</h3>
+                    <p className="text-gray-400 text-sm">{network.description}</p>
+                  </div>
+                </div>
+                {selectedNetwork === network.id && (
+                  <CheckCircleIcon className="w-6 h-6 text-nx-blue" />
+                )}
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Min: ${network.minimumDeposit}</span>
+                <span className="text-gray-400">{network.estimatedTime}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Deposit Form */}
@@ -83,7 +170,7 @@ const DepositPage: React.FC = () => {
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Deposit Amount (USDT)
+              Deposit Amount ({selectedNetworkConfig?.token} on {selectedNetworkConfig?.name})
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -95,11 +182,13 @@ const DepositPage: React.FC = () => {
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
                 className="w-full pl-8 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-nx-blue focus:border-transparent"
-                min="10"
+                min={selectedNetworkConfig?.minimumDeposit || 10}
                 step="0.01"
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">Minimum deposit: $10 USDT</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Minimum deposit: ${selectedNetworkConfig?.minimumDeposit} {selectedNetworkConfig?.token}
+            </p>
           </div>
 
           <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4">
@@ -108,10 +197,11 @@ const DepositPage: React.FC = () => {
               <div>
                 <p className="text-yellow-400 font-medium text-sm">Important Notice</p>
                 <ul className="text-gray-300 text-sm mt-1 space-y-1">
-                  <li>• Only send USDT on Binance Smart Chain (BEP-20)</li>
-                  <li>• Minimum deposit: $10 USDT</li>
-                  <li>• Deposits are typically confirmed within 5-30 minutes</li>
+                  <li>• Only send {selectedNetworkConfig?.token} on {selectedNetworkConfig?.name}</li>
+                  <li>• Minimum deposit: ${selectedNetworkConfig?.minimumDeposit} {selectedNetworkConfig?.token}</li>
+                  <li>• Estimated confirmation: {selectedNetworkConfig?.estimatedTime}</li>
                   <li>• Do not send other tokens to this address</li>
+                  <li>• Network fees may apply</li>
                 </ul>
               </div>
             </div>
@@ -119,10 +209,10 @@ const DepositPage: React.FC = () => {
 
           <button
             onClick={handleGenerateDeposit}
-            disabled={!amount || parseFloat(amount) < 10 || loading}
+            disabled={!amount || parseFloat(amount) < (selectedNetworkConfig?.minimumDeposit || 10) || loading}
             className="w-full btn-primary py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Generating...' : 'Generate Deposit Address'}
+            {loading ? 'Generating...' : `Generate ${selectedNetworkConfig?.name} Address`}
           </button>
         </div>
       </div>
@@ -132,7 +222,7 @@ const DepositPage: React.FC = () => {
         <div className="glass-effect rounded-xl p-6">
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
             <QrCodeIcon className="w-6 h-6 mr-2 text-nx-blue" />
-            Your Deposit Address
+            Your {selectedNetworkConfig?.name} Deposit Address
           </h2>
 
           <div className="space-y-6">
@@ -150,7 +240,7 @@ const DepositPage: React.FC = () => {
             {/* Address */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Deposit Address (BEP-20)
+                Deposit Address ({selectedNetworkConfig?.name})
               </label>
               <div className="flex items-center space-x-2">
                 <div className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white break-all">
@@ -168,38 +258,47 @@ const DepositPage: React.FC = () => {
               )}
             </div>
 
-            {/* Deposit Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white/5 rounded-lg p-4">
-                <p className="text-sm text-gray-400 mb-1">Network</p>
-                <p className="text-white font-medium">Binance Smart Chain (BEP-20)</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-4">
-                <p className="text-sm text-gray-400 mb-1">Token</p>
-                <p className="text-white font-medium">USDT</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-4">
-                <p className="text-sm text-gray-400 mb-1">Amount</p>
-                <p className="text-white font-medium">${amount} USDT</p>
-              </div>
-              <div className="bg-white/5 rounded-lg p-4">
-                <p className="text-sm text-gray-400 mb-1">Status</p>
-                <div className="flex items-center space-x-2">
-                  <ClockIcon className="w-4 h-4 text-yellow-400" />
-                  <p className="text-yellow-400 font-medium">Waiting for deposit</p>
+            {/* Network Info */}
+            <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <span className="text-xl">{selectedNetworkConfig?.icon}</span>
+                <div>
+                  <p className="text-blue-400 font-medium text-sm">{selectedNetworkConfig?.name}</p>
+                  <p className="text-gray-300 text-sm">
+                    Send exactly ${amount} {selectedNetworkConfig?.token} to this address
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <CheckCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-blue-400 font-medium text-sm">Next Steps</p>
-                  <p className="text-gray-300 text-sm mt-1">
-                    Send {amount} USDT to the address above. Once confirmed, the funds will be automatically credited to your account.
-                  </p>
-                </div>
+            {/* External Wallet Links */}
+            <div className="space-y-3">
+              <p className="text-sm text-gray-400">Quick access from popular wallets:</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button
+                  onClick={() => window.open(`https://trustwallet.com/`, '_blank')}
+                  className="p-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 transition-colors"
+                >
+                  Trust Wallet
+                </button>
+                <button
+                  onClick={() => window.open(`https://metamask.io/`, '_blank')}
+                  className="p-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 transition-colors"
+                >
+                  MetaMask
+                </button>
+                <button
+                  onClick={() => window.open(`https://binance.com/`, '_blank')}
+                  className="p-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 transition-colors"
+                >
+                  Binance
+                </button>
+                <button
+                  onClick={() => window.open(`https://www.tronlink.org/`, '_blank')}
+                  className="p-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 transition-colors"
+                >
+                  TronLink
+                </button>
               </div>
             </div>
           </div>
@@ -210,54 +309,41 @@ const DepositPage: React.FC = () => {
       <div className="glass-effect rounded-xl p-6">
         <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
           <ClockIcon className="w-6 h-6 mr-2 text-nx-blue" />
-          Deposit History
+          Recent Deposits
         </h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Date</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Coin</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Amount</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {depositHistory.map((transaction) => (
-                <tr key={transaction._id} className="border-b border-white/5">
-                  <td className="py-3 px-4 text-gray-300">
-                    {new Date(transaction.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-green-400 font-bold">₮</span>
-                      </div>
-                      <span className="text-white">USDT</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-green-400 font-medium">
-                    ${transaction.amount.toLocaleString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
-                      {transaction.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              
-              {depositHistory.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-400">
-                    No deposit history yet
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {depositHistory.length === 0 ? (
+          <div className="text-center py-8">
+            <ArrowDownTrayIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-400">No deposits yet. Make your first deposit above!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {depositHistory.map((transaction) => (
+              <div key={transaction._id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                    <ArrowDownTrayIcon className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{transaction.description}</p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(transaction.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
+                    {transaction.status}
+                  </div>
+                  <p className="text-green-400 font-semibold mt-1">
+                    +${transaction.amount.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
