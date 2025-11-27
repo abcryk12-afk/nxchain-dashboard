@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Shield, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -21,8 +21,10 @@ const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (loading) return; // Prevent multiple submissions
     
     if (!credentials.email || !credentials.password) {
       toast.error('Please enter email and password');
@@ -74,7 +76,7 @@ const AdminLoginPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [credentials, loading, login, navigate]);
 
   return (
     <div className="min-h-screen bg-nx-dark flex items-center justify-center p-4">
