@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
+  console.log('🔥 AdminLoginPage component loaded!');
+  alert('🔥 AdminLoginPage loaded! If you see this, the page is working.');
+  
   const [credentials, setCredentials] = useState({
     email: 'admin@nxchain.com',
     password: ''
