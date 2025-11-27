@@ -1,13 +1,17 @@
 export interface User {
-  id: string;
+  userId: string;
   email: string;
+  firstName: string;
+  lastName: string;
   referralCode: string;
+  address: string;
   balance: number;
   totalEarnings: number;
   referralEarnings: number;
   withdrawableBalance: number;
   pendingEarnings: number;
   isVerified: boolean;
+  isAdmin?: boolean;
   createdAt: string;
 }
 
