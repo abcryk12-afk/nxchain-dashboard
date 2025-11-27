@@ -9,7 +9,7 @@ import {
   CheckCircleIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
-import Header from '../../components/Header';
+import AdminHeader from '../../components/AdminHeader';
 
 interface User {
   _id: string;
@@ -129,7 +129,7 @@ const UserManagementPage: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <AdminHeader />
       <div className="min-h-screen bg-gray-900 text-white p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
