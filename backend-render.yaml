@@ -1,0 +1,21 @@
+services:
+  # Backend Service Configuration
+  - type: web
+    name: nxchain-backend
+    env: node
+    rootDir: backend
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server-enhanced.js
+    envVars:
+      # Database connection
+      - key: MONGODB_URI
+        value: mongodb+srv://musmanasir678:admin123@cluster0.8.mongodb.net/nxchain?retryWrites=true&w=majority
+      # JWT Secret
+      - key: JWT_SECRET
+        value: nxchain-super-secret-jwt-key-2024
+      # Frontend URL for CORS
+      - key: FRONTEND_URL
+        value: https://nxchain-frontend.onrender.com
+      # Node environment
+      - key: NODE_ENV
+        value: production

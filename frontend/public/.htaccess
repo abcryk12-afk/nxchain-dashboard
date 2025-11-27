@@ -2,7 +2,7 @@
 # Enable rewrite engine
 RewriteEngine On
 
-# Handle API routes - pass to backend
+# Handle API routes - pass to backend (CORS proxy)
 RewriteCond %{REQUEST_URI} ^/api/ [NC]
 RewriteRule ^api/(.*)$ https://nxchain-dashboard.onrender.com/api/$1 [P,L]
 
@@ -14,8 +14,17 @@ RewriteRule ^ - [L]
 # Handle all other routes - serve index.html for React Router
 RewriteRule ^(.*)$ /index.html [QSA,L]
 
-# Security headers
+# CORS headers for API proxy
 <IfModule mod_headers.c>
+    # API routes CORS
+    <FilesMatch "^api/">
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+        Header always set Access-Control-Allow-Credentials "true"
+    </FilesMatch>
+    
+    # Security headers
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-XSS-Protection "1; mode=block"
