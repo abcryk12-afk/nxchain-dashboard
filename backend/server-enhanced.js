@@ -167,11 +167,15 @@ app.post('/api/register', async (req, res) => {
     // Generate referral code for new user
     const userReferralCode = User.generateReferralCode();
 
+    // Hash password and generate salt using the encryption utilities
+    const { hash: hashedPassword, salt } = require('./utils/encryption').hashPassword(password);
+
     // Create user
     const user = new User({
       userId: newUserId,
       email,
-      password,
+      password: hashedPassword,
+      salt: salt,
       firstName: firstName || '',
       lastName: lastName || '',
       address: userWallet.address,
@@ -311,10 +315,14 @@ app.post('/api/login', async (req, res) => {
         const adminWallet = generateUserWallet(adminUserId);
         const adminReferralCode = User.generateReferralCode();
         
+        // Hash admin password and generate salt
+        const { hash: hashedAdminPassword, salt: adminSalt } = require('./utils/encryption').hashPassword('admin123456');
+
         adminUser = new User({
           userId: adminUserId,
           email: 'admin@nxchain.com',
-          password: 'admin123456',
+          password: hashedAdminPassword,
+          salt: adminSalt,
           firstName: 'Admin',
           lastName: 'User',
           address: adminWallet.address,
