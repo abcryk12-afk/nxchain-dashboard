@@ -20,17 +20,24 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('App useEffect - Checking for existing token/user');
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
+    
+    console.log('Token found:', !!token);
+    console.log('User data found:', !!userData);
 
     if (token && userData) {
       const parsedUser = JSON.parse(userData);
+      console.log('Parsed user:', parsedUser);
       setUser(parsedUser);
       
       // Fetch dashboard data
       const fetchDashboardData = async () => {
         try {
+          console.log('Fetching dashboard data...');
           const data = await dashboard.getData();
+          console.log('Dashboard data fetched:', data);
           setDashboardData(data);
         } catch (error) {
           console.error('Failed to fetch dashboard data:', error);
@@ -45,6 +52,7 @@ function App() {
 
       fetchDashboardData();
     } else {
+      console.log('No token/user found, setting loading to false');
       setLoading(false);
     }
   }, []);

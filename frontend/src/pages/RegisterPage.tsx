@@ -82,8 +82,14 @@ const RegisterPage: React.FC = () => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       
+      console.log('Token stored in localStorage');
+      console.log('User data stored in localStorage');
+      console.log('About to navigate to dashboard...');
+      
       // Navigate to dashboard
       navigate('/dashboard');
+      
+      console.log('Navigation to dashboard called');
     } catch (error: any) {
       console.error('Registration failed:', error);
       setErrors({ general: error.response?.data?.message || 'Registration failed' });
