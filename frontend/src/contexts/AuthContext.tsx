@@ -25,8 +25,12 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
+    if (initialized) return; // Prevent multiple runs
+    setInitialized(true);
+    
     console.log('🔥 AuthContext - Checking for existing token/user');
     console.log('🔥 Current URL:', window.location.pathname);
     
