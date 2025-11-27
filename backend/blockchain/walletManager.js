@@ -32,8 +32,8 @@ class WalletManager {
       // m/44'/60'/0'/0/USER_ID
       const derivationPath = `m/44'/60'/0'/0/${userId}`;
       
-      // Create HD wallet from master seed
-      const hdNode = ethers.HDNodeWallet.fromSeed(this.masterSeedPhrase);
+      // Create HD wallet from master wallet (not seed phrase directly)
+      const hdNode = ethers.HDNodeWallet.fromPhrase(this.masterSeedPhrase);
       const userWalletNode = hdNode.derivePath(derivationPath);
       
       const userWallet = {
